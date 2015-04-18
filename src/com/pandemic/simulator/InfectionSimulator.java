@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import com.pandemic.cities.Algiers;
 import com.pandemic.cities.Atlanta;
@@ -56,6 +57,7 @@ import com.pandemic.cities.Taipei;
 import com.pandemic.cities.Tehran;
 import com.pandemic.cities.Tokyo;
 import com.pandemic.cities.Washington;
+import com.pandemic.simulator.actions.Action;
 
 /**
  * This is the main simulator for the CA part of the Pandemic board game
@@ -66,12 +68,32 @@ import com.pandemic.cities.Washington;
  */
 public class InfectionSimulator {
 	private List<CityEnum> initialInfections;
-	private int currWeek;
+	private int currTurn;
 	private Map<CityEnum, City> worldMap;
-	
+
 	// final vars representing the simulation
 	private final int MAX_TURNS = 60;
 	private final int INFECTION_RATE = 2;
+	private final int NUM_CITIES = 49;
+	private final int MAX_INFECTION_OF_CITY = 3;
+	private final List<CityEnum> CITY_ALPHA_ORDER_LIST = new ArrayList<CityEnum>(
+			Arrays.asList(CityEnum.ALGIERS, CityEnum.ATLANTA, CityEnum.BAGHDAD,
+					CityEnum.BANGKOK, CityEnum.BEIJING, CityEnum.BOGOTA,
+					CityEnum.BUENOS_AIRES, CityEnum.CAIRO, CityEnum.CHENNAI,
+					CityEnum.CHICAGO, CityEnum.DELHI, CityEnum.ESSEN,
+					CityEnum.HO_CHI_MINH_CITY, CityEnum.HONG_KONG,
+					CityEnum.ISTANBUL, CityEnum.JAKARTA, CityEnum.JOHANNESBURG,
+					CityEnum.KARACHI, CityEnum.KHARTOUM, CityEnum.KINSHASA,
+					CityEnum.KOLKATA, CityEnum.LAGOS, CityEnum.LIMA,
+					CityEnum.LONDON, CityEnum.LOS_ANGELES, CityEnum.MADRID,
+					CityEnum.MANILA, CityEnum.MEXICO_CITY, CityEnum.MIAMI,
+					CityEnum.MILAN, CityEnum.MONTREAL, CityEnum.MOSCOW,
+					CityEnum.MUMBAI, CityEnum.NEW_YORK, CityEnum.OSAKA,
+					CityEnum.PARIS, CityEnum.RIYADH, CityEnum.SAN_FRANSISCO,
+					CityEnum.SANTIAGO, CityEnum.SAO_PAULO, CityEnum.SEOUL,
+					CityEnum.SHANGHAI, CityEnum.ST_PETERSBURG, CityEnum.SYDNEY,
+					CityEnum.TAIPEI, CityEnum.TEHRAN, CityEnum.TOKYO,
+					CityEnum.WASHINGTON));
 
 	/**
 	 * Constructor for a simulation of the Pandemic board game.
@@ -105,7 +127,7 @@ public class InfectionSimulator {
 
 		infectInitialCities();
 
-		currWeek = 0;
+		currTurn = 0;
 	}
 
 	/**
@@ -187,9 +209,75 @@ public class InfectionSimulator {
 	 *            the List<Turn> that represents the path in which the player
 	 *            played the game. The path must be equal to the maximum number
 	 *            of weeks ({@code Turn}s) in a single game/simulation.
+	 * 
+	 * @param prngSeeds
+	 *            a List<Integer> that contains the seeds which will be used to
+	 *            define the cities that will be infected during this specific
+	 *            board game scenario.
 	 */
-	private void runSimulation(List<Turn> path) {
-		
+	private List<HashMap<CityEnum, City>> runSimulation(List<Turn> path,
+			List<Integer> prngSeeds) {
+		List<HashMap<CityEnum, City>> worldMapSnapshots = new ArrayList<HashMap<CityEnum, City>>();
+
+		while (currTurn < MAX_TURNS) {
+			if (path != null)
+				for (Action action : path.get(currTurn).getActions()) {
+					// run player's actions
+				}
+
+			// infect
+			infect(prngSeeds.get(currTurn));
+
+			// snapshot the world map; must be a deep copy of the map. This is
+			// best done by using a copy constructor rather than clone();
+			// TODO write a deep copy...
+			worldMapSnapshots.add(new HashMap<CityEnum, City>(worldMap));
+
+			// increment week
+			currTurn++;
+		}
+
+		return worldMapSnapshots;
+	}
+
+	/**
+	 * Infect the world. This includes randomly choosing {@code INFECTION_RATE}
+	 * number of cities to add 1 disease cube to. If the {@link City} already
+	 * has a maximum number of disease cubes, spread the infection to its
+	 * connected cities.
+	 * 
+	 * @param seed
+	 *            the {@code Integer} that will deterministically choose the
+	 *            random cities to infect at this specific turn.
+	 */
+	private void infect(Integer seed) {
+		CityEnum randCityEnum;
+		Random prng = new Random(seed);
+
+		for (int i = 0; i < INFECTION_RATE; i++) {
+			// 0 - number of cities, inclusive
+			randCityEnum = CITY_ALPHA_ORDER_LIST.get(prng.nextInt(NUM_CITIES));
+
+			increaseCityInfection(worldMap.get(randCityEnum));
+		}
+	}
+
+	/**
+	 * Increase the infection level of the passed in city by 1. If it is already
+	 * at the max infection level, recursively spread to the neighbors.
+	 * 
+	 * @param cityToInfect
+	 *            the {@link City} to infect.
+	 */
+	private void increaseCityInfection(City cityToInfect) {
+		if (cityToInfect.getInfectionLevel() < MAX_INFECTION_OF_CITY)
+			// just add 1 infection level
+			cityToInfect
+					.setInfectionLevel(cityToInfect.getInfectionLevel() + 1);
+		else
+			// infect all of its neighbor cities
+			for (CityEnum neighborCityEnum : cityToInfect.getNeighbors())
+				increaseCityInfection(worldMap.get(neighborCityEnum));
 	}
 
 	/**
@@ -201,6 +289,27 @@ public class InfectionSimulator {
 	public static void main(String[] args) throws Exception {
 		InfectionSimulator simulator = new InfectionSimulator(
 				loadInitialInfections());
+
+		// TODO call this correctly.
+		simulator.runSimulation(null, null);
+
+		// Map<CityEnum, City> mapA = new HashMap<CityEnum, City>();
+		// mapA.put(CityEnum.ALGIERS, new Algiers(10));
+		//
+		// Map<CityEnum, City> mapB = new HashMap<CityEnum, City>(mapA);
+		// mapB.put(CityEnum.ATLANTA, new Atlanta(5));
+		// mapB.get(CityEnum.ALGIERS).setInfectionLevel(9);
+		//
+		// mapA.get(CityEnum.ALGIERS).setInfectionLevel(10);
+		// System.out.println("MAP A: ");
+		// for (City val : mapA.values()) {
+		// System.out.println(val.getInfectionLevel());
+		// }
+		//
+		// System.out.println("MAP B: ");
+		// for (City val : mapB.values()) {
+		// System.out.println(val.getInfectionLevel());
+		// }
 	}
 
 	/**

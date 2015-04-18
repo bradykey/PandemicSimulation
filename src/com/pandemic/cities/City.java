@@ -11,8 +11,8 @@ import java.util.List;
 public abstract class City {
 
 	private String name;
-	private int infectionLevel;
-	private List<City> neighbors;
+	private int infectionLevel = 0;
+	private List<CityEnum> neighbors;
 
 	// Begin getters and setters
 	public String getName() {
@@ -31,11 +31,11 @@ public abstract class City {
 		this.infectionLevel = infectionLevel;
 	}
 
-	public List<City> getNeighbors() {
+	public List<CityEnum> getNeighbors() {
 		return neighbors;
 	}
 
-	public void setNeighbors(List<City> neighbors) {
+	public void setNeighbors(List<CityEnum> neighbors) {
 		this.neighbors = neighbors;
 	}
 

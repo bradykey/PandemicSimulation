@@ -4,7 +4,7 @@ import com.pandemic.cities.CityEnum;
 
 /**
  * This class is a concrete {@link Action} that represents a move to a certain
- * {@linke City}.
+ * {@link City}.
  * 
  * @author Brady
  */
