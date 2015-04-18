@@ -175,9 +175,12 @@ public class InfectionSimulator {
 			ctr++;
 		}
 	}
-	
-	private void runSimulation(){
-		
+
+	/**
+	 * This method runs the simulation with the passed in players actions.
+	 */
+	private void runSimulation() {
+
 	}
 
 	/**
