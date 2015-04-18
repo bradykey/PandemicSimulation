@@ -179,7 +179,7 @@ public class InfectionSimulator {
 	/**
 	 * This method runs the simulation with the passed in players actions.
 	 * 
-	 * @param List<ActionSet>
+	 * @param List<ActionSet> the genome.
 	 */
 	private void runSimulation() {
 
