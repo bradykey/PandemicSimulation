@@ -1,0 +1,58 @@
+package com.pandemic.cities;
+
+/**
+ * This {@code CityEnum} defines the names of the cities seen on the Pandemic
+ * board game map.
+ * 
+ * @author BKey
+ */
+public enum CityEnum {
+	SAN_FRANSISCO,
+	LOS_ANGELES,
+	MEXICO_CITY,
+	CHICAGO,
+	ATLANTA,
+	MONTREAL,
+	MIAMI,
+	WASHINGTON,
+	NEW_YORK,
+	BOGOTA,
+	LIMA,
+	SANTIAGO,
+	BUENOS_AIRES,
+	SAO_PAULO,
+	MADRID,
+	LONDON,
+	PARIS,
+	ALGIERS,
+	ESSEN,
+	MILAN,
+	ISTANBUL,
+	ST_PETERSBURG,
+	CAIRO,
+	BAGHDAD,
+	MOSCOW,
+	RIYADH,
+	TEHRAN,
+	KARACHI,
+	MUMBAI,
+	DELHI,
+	CHENNAI,
+	KOLKATA,
+	LAGOS,
+	KHARTOUM,
+	KINSHASA,
+	JOHANNESBURG,
+	BANGKOK,
+	JAKARTA,
+	BEIJING,
+	SHANGHAI,
+	HONG_KONG,
+	HO_CHI_MINH_CITY,
+	SEOUL,
+	TAIPEI,
+	MANILA,
+	SYDNEY,
+	TOKYO,
+	OSAKA
+}
