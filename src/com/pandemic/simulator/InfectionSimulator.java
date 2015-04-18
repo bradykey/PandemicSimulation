@@ -68,6 +68,10 @@ public class InfectionSimulator {
 	private List<CityEnum> initialInfections;
 	private int currWeek;
 	private Map<CityEnum, City> worldMap;
+	
+	// final vars representing the simulation
+	private final int MAX_TURNS = 60;
+	private final int INFECTION_RATE = 2;
 
 	/**
 	 * Constructor for a simulation of the Pandemic board game.
@@ -177,12 +181,15 @@ public class InfectionSimulator {
 	}
 
 	/**
-	 * This method runs the simulation with the passed in players actions.
+	 * This method runs the simulation with the passed in player's path.
 	 * 
-	 * @param List<ActionSet> the genome. Why?
+	 * @param path
+	 *            the List<Turn> that represents the path in which the player
+	 *            played the game. The path must be equal to the maximum number
+	 *            of weeks ({@code Turn}s) in a single game/simulation.
 	 */
-	private void runSimulation() {
-
+	private void runSimulation(List<Turn> path) {
+		
 	}
 
 	/**
