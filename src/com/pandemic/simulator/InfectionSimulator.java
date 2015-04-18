@@ -178,6 +178,8 @@ public class InfectionSimulator {
 
 	/**
 	 * This method runs the simulation with the passed in players actions.
+	 * 
+	 * @param List<ActionSet>
 	 */
 	private void runSimulation() {
 
