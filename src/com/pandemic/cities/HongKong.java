@@ -1,7 +1,6 @@
 package com.pandemic.cities;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * The specific {@link City} object that represents Hong Kong.
@@ -15,7 +14,7 @@ public class HongKong extends City {
 	 */
 	public HongKong() {
 	}
-	
+
 	/**
 	 * The constructor for {@code HongKong}.
 	 * 
@@ -30,11 +29,11 @@ public class HongKong extends City {
 	 * Initialize the {@code City} specifically for {@code HongKong}.
 	 */
 	private void init(int infectionLevel) {
-		this.setName("Hong Kong");
-		this.setInfectionLevel(infectionLevel);
+		name = "Hong Kong";
+		this.infectionLevel = infectionLevel;
 
 		// build the geographical neighbors
-		List<CityEnum> neighbors = new ArrayList<CityEnum>();
+		neighbors = new ArrayList<CityEnum>();
 		neighbors.add(CityEnum.BANGKOK);
 		neighbors.add(CityEnum.KOLKATA);
 		neighbors.add(CityEnum.SHANGHAI);

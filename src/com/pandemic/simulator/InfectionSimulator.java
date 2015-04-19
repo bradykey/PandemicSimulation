@@ -74,7 +74,7 @@ public class InfectionSimulator {
 	// final vars representing the simulation
 	private final int MAX_TURNS = 60;
 	private final int INFECTION_RATE = 2;
-	private final int NUM_CITIES = 49;
+	private final int NUM_CITIES = 48;
 	private final int MAX_INFECTION_OF_CITY = 3;
 	private final List<CityEnum> CITY_ALPHA_ORDER_LIST = new ArrayList<CityEnum>(
 			Arrays.asList(CityEnum.ALGIERS, CityEnum.ATLANTA, CityEnum.BAGHDAD,
@@ -135,54 +135,57 @@ public class InfectionSimulator {
 	 */
 	private void fillWorldMap() {
 		// create all cities
-		worldMap.put(CityEnum.ALGIERS, new Algiers());
-		worldMap.put(CityEnum.ATLANTA, new Atlanta());
-		worldMap.put(CityEnum.BAGHDAD, new Baghdad());
-		worldMap.put(CityEnum.BANGKOK, new Bangkok());
-		worldMap.put(CityEnum.BEIJING, new Beijing());
-		worldMap.put(CityEnum.BOGOTA, new Bogota());
-		worldMap.put(CityEnum.BUENOS_AIRES, new BuenosAires());
-		worldMap.put(CityEnum.CAIRO, new Cairo());
-		worldMap.put(CityEnum.CHENNAI, new Chennai());
-		worldMap.put(CityEnum.CHICAGO, new Chicago());
-		worldMap.put(CityEnum.DELHI, new Delhi());
-		worldMap.put(CityEnum.ESSEN, new Essen());
-		worldMap.put(CityEnum.HO_CHI_MINH_CITY, new HoChiMinhCity());
-		worldMap.put(CityEnum.HONG_KONG, new HongKong());
-		worldMap.put(CityEnum.ISTANBUL, new Istanbul());
-		worldMap.put(CityEnum.JAKARTA, new Jakarta());
-		worldMap.put(CityEnum.JOHANNESBURG, new Johannesburg());
-		worldMap.put(CityEnum.KARACHI, new Karachi());
-		worldMap.put(CityEnum.KHARTOUM, new Khartoum());
-		worldMap.put(CityEnum.KINSHASA, new Kinshasa());
-		worldMap.put(CityEnum.KOLKATA, new Kolkata());
-		worldMap.put(CityEnum.LAGOS, new Lagos());
-		worldMap.put(CityEnum.LIMA, new Lima());
-		worldMap.put(CityEnum.LONDON, new London());
-		worldMap.put(CityEnum.LOS_ANGELES, new LosAngeles());
-		worldMap.put(CityEnum.MADRID, new Madrid());
-		worldMap.put(CityEnum.MANILA, new Manila());
-		worldMap.put(CityEnum.MEXICO_CITY, new MexicoCity());
-		worldMap.put(CityEnum.MIAMI, new Miami());
-		worldMap.put(CityEnum.MILAN, new Milan());
-		worldMap.put(CityEnum.MONTREAL, new Montreal());
-		worldMap.put(CityEnum.MOSCOW, new Moscow());
-		worldMap.put(CityEnum.MUMBAI, new Mumbai());
-		worldMap.put(CityEnum.NEW_YORK, new NewYork());
-		worldMap.put(CityEnum.OSAKA, new Osaka());
-		worldMap.put(CityEnum.PARIS, new Paris());
-		worldMap.put(CityEnum.RIYADH, new Riyadh());
-		worldMap.put(CityEnum.SAN_FRANSISCO, new SanFransisco());
-		worldMap.put(CityEnum.SANTIAGO, new Santiago());
-		worldMap.put(CityEnum.SAO_PAULO, new SaoPaulo());
-		worldMap.put(CityEnum.SEOUL, new Seoul());
-		worldMap.put(CityEnum.SHANGHAI, new Shanghai());
-		worldMap.put(CityEnum.ST_PETERSBURG, new StPetersburg());
-		worldMap.put(CityEnum.SYDNEY, new Sydney());
-		worldMap.put(CityEnum.TAIPEI, new Taipei());
-		worldMap.put(CityEnum.TEHRAN, new Tehran());
-		worldMap.put(CityEnum.TOKYO, new Tokyo());
-		worldMap.put(CityEnum.WASHINGTON, new Washington());
+		worldMap.put(CityEnum.ALGIERS, new Algiers(0));
+		worldMap.put(CityEnum.ATLANTA, new Atlanta(0));
+		worldMap.put(CityEnum.BAGHDAD, new Baghdad(0));
+		worldMap.put(CityEnum.BANGKOK, new Bangkok(0));
+		worldMap.put(CityEnum.BEIJING, new Beijing(0));
+		worldMap.put(CityEnum.BOGOTA, new Bogota(0));
+		worldMap.put(CityEnum.BUENOS_AIRES, new BuenosAires(0));
+		worldMap.put(CityEnum.CAIRO, new Cairo(0));
+		worldMap.put(CityEnum.CHENNAI, new Chennai(0));
+		worldMap.put(CityEnum.CHICAGO, new Chicago(0));
+		worldMap.put(CityEnum.DELHI, new Delhi(0));
+		worldMap.put(CityEnum.ESSEN, new Essen(0));
+		worldMap.put(CityEnum.HO_CHI_MINH_CITY, new HoChiMinhCity(0));
+		worldMap.put(CityEnum.HONG_KONG, new HongKong(0));
+		worldMap.put(CityEnum.ISTANBUL, new Istanbul(0));
+		worldMap.put(CityEnum.JAKARTA, new Jakarta(0));
+		worldMap.put(CityEnum.JOHANNESBURG, new Johannesburg(0));
+		worldMap.put(CityEnum.KARACHI, new Karachi(0));
+		worldMap.put(CityEnum.KHARTOUM, new Khartoum(0));
+		worldMap.put(CityEnum.KINSHASA, new Kinshasa(0));
+		worldMap.put(CityEnum.KOLKATA, new Kolkata(0));
+		worldMap.put(CityEnum.LAGOS, new Lagos(0));
+		worldMap.put(CityEnum.LIMA, new Lima(0));
+		worldMap.put(CityEnum.LONDON, new London(0));
+		worldMap.put(CityEnum.LOS_ANGELES, new LosAngeles(0));
+		worldMap.put(CityEnum.MADRID, new Madrid(0));
+		worldMap.put(CityEnum.MANILA, new Manila(0));
+		worldMap.put(CityEnum.MEXICO_CITY, new MexicoCity(0));
+		worldMap.put(CityEnum.MIAMI, new Miami(0));
+		worldMap.put(CityEnum.MILAN, new Milan(0));
+		worldMap.put(CityEnum.MONTREAL, new Montreal(0));
+		worldMap.put(CityEnum.MOSCOW, new Moscow(0));
+		worldMap.put(CityEnum.MUMBAI, new Mumbai(0));
+		worldMap.put(CityEnum.NEW_YORK, new NewYork(0));
+		worldMap.put(CityEnum.OSAKA, new Osaka(0));
+		worldMap.put(CityEnum.PARIS, new Paris(0));
+		worldMap.put(CityEnum.RIYADH, new Riyadh(0));
+		worldMap.put(CityEnum.SAN_FRANSISCO, new SanFransisco(0));
+		worldMap.put(CityEnum.SANTIAGO, new Santiago(0));
+		worldMap.put(CityEnum.SAO_PAULO, new SaoPaulo(0));
+		worldMap.put(CityEnum.SEOUL, new Seoul(0));
+		worldMap.put(CityEnum.SHANGHAI, new Shanghai(0));
+		worldMap.put(CityEnum.ST_PETERSBURG, new StPetersburg(0));
+		worldMap.put(CityEnum.SYDNEY, new Sydney(0));
+		worldMap.put(CityEnum.TAIPEI, new Taipei(0));
+		worldMap.put(CityEnum.TEHRAN, new Tehran(0));
+		worldMap.put(CityEnum.TOKYO, new Tokyo(0));
+		worldMap.put(CityEnum.WASHINGTON, new Washington(0));
+
+		// for (CityEnum city : worldMap.keySet())
+		// System.out.println(city.toString());
 	}
 
 	/**
@@ -213,11 +216,11 @@ public class InfectionSimulator {
 	 * @param prngSeeds
 	 *            a List<Integer> that contains the seeds which will be used to
 	 *            define the cities that will be infected during this specific
-	 *            board game scenario.
+	 *            board game scenario. This needs to be of length MAX_TURNS.
 	 */
-	private List<HashMap<CityEnum, City>> runSimulation(List<Turn> path,
+	private List<Map<CityEnum, City>> runSimulation(List<Turn> path,
 			List<Integer> prngSeeds) {
-		List<HashMap<CityEnum, City>> worldMapSnapshots = new ArrayList<HashMap<CityEnum, City>>();
+		List<Map<CityEnum, City>> worldMapSnapshots = new ArrayList<Map<CityEnum, City>>();
 
 		while (currTurn < MAX_TURNS) {
 			if (path != null)
@@ -228,14 +231,22 @@ public class InfectionSimulator {
 			// infect
 			infect(prngSeeds.get(currTurn));
 
-			// snapshot the world map; must be a deep copy of the map. This is
-			// best done by using a copy constructor rather than clone();
-			// TODO write a deep copy...
-			worldMapSnapshots.add(new HashMap<CityEnum, City>(worldMap));
+			// snapshot the world map; must be a deep copy of the map
+			worldMapSnapshots.add(snapshotTheWorld());
+
+			// XXX print for debugging purposes
+			for (CityEnum cityEnum : worldMapSnapshots.get(currTurn).keySet())
+				System.out.println(cityEnum.toString()
+						+ ": "
+						+ worldMapSnapshots.get(currTurn).get(cityEnum)
+								.getInfectionLevel());
 
 			// increment week
 			currTurn++;
 		}
+
+		// XXX debugging...
+		System.out.println("\n");
 
 		return worldMapSnapshots;
 	}
@@ -253,10 +264,12 @@ public class InfectionSimulator {
 	private void infect(Integer seed) {
 		CityEnum randCityEnum;
 		Random prng = new Random(seed);
+		int idx;
 
 		for (int i = 0; i < INFECTION_RATE; i++) {
 			// 0 - number of cities, inclusive
-			randCityEnum = CITY_ALPHA_ORDER_LIST.get(prng.nextInt(NUM_CITIES));
+			idx = prng.nextInt(NUM_CITIES);
+			randCityEnum = CITY_ALPHA_ORDER_LIST.get(idx);
 
 			increaseCityInfection(worldMap.get(randCityEnum));
 		}
@@ -281,6 +294,176 @@ public class InfectionSimulator {
 	}
 
 	/**
+	 * Create a deep copy of the world map in its current state.
+	 * 
+	 * @return the "snapshot" that is the deep copy of the {@code worldMap}.
+	 */
+	private Map<CityEnum, City> snapshotTheWorld() {
+		Map<CityEnum, City> copiedWorldMap = new HashMap<CityEnum, City>();
+
+		// loop through all of the cities and create new cities inside of the
+		// new hashmap.
+		for (CityEnum cityEnum : worldMap.keySet()) {
+			City copiedCity = null;
+			City currCity = worldMap.get(cityEnum);
+
+			switch (cityEnum) {
+			case ALGIERS:
+				copiedCity = new Algiers(currCity.getInfectionLevel());
+				break;
+			case ATLANTA:
+				copiedCity = new Atlanta(currCity.getInfectionLevel());
+				break;
+			case BAGHDAD:
+				copiedCity = new Baghdad(currCity.getInfectionLevel());
+				break;
+			case BANGKOK:
+				copiedCity = new Bangkok(currCity.getInfectionLevel());
+				break;
+			case BEIJING:
+				copiedCity = new Beijing(currCity.getInfectionLevel());
+				break;
+			case BOGOTA:
+				copiedCity = new Bogota(currCity.getInfectionLevel());
+				break;
+			case BUENOS_AIRES:
+				copiedCity = new BuenosAires(currCity.getInfectionLevel());
+				break;
+			case CAIRO:
+				copiedCity = new Cairo(currCity.getInfectionLevel());
+				break;
+			case CHENNAI:
+				copiedCity = new Chennai(currCity.getInfectionLevel());
+				break;
+			case CHICAGO:
+				copiedCity = new Chicago(currCity.getInfectionLevel());
+				break;
+			case DELHI:
+				copiedCity = new Delhi(currCity.getInfectionLevel());
+				break;
+			case ESSEN:
+				copiedCity = new Essen(currCity.getInfectionLevel());
+				break;
+			case HO_CHI_MINH_CITY:
+				copiedCity = new HoChiMinhCity(currCity.getInfectionLevel());
+				break;
+			case HONG_KONG:
+				copiedCity = new HongKong(currCity.getInfectionLevel());
+				break;
+			case ISTANBUL:
+				copiedCity = new Istanbul(currCity.getInfectionLevel());
+				break;
+			case JAKARTA:
+				copiedCity = new Jakarta(currCity.getInfectionLevel());
+				break;
+			case JOHANNESBURG:
+				copiedCity = new Johannesburg(currCity.getInfectionLevel());
+				break;
+			case KARACHI:
+				copiedCity = new Karachi(currCity.getInfectionLevel());
+				break;
+			case KHARTOUM:
+				copiedCity = new Khartoum(currCity.getInfectionLevel());
+				break;
+			case KINSHASA:
+				copiedCity = new Kinshasa(currCity.getInfectionLevel());
+				break;
+			case KOLKATA:
+				copiedCity = new Kolkata(currCity.getInfectionLevel());
+				break;
+			case LAGOS:
+				copiedCity = new Lagos(currCity.getInfectionLevel());
+				break;
+			case LIMA:
+				copiedCity = new Lima(currCity.getInfectionLevel());
+				break;
+			case LONDON:
+				copiedCity = new London(currCity.getInfectionLevel());
+				break;
+			case LOS_ANGELES:
+				copiedCity = new LosAngeles(currCity.getInfectionLevel());
+				break;
+			case MADRID:
+				copiedCity = new Madrid(currCity.getInfectionLevel());
+				break;
+			case MANILA:
+				copiedCity = new Manila(currCity.getInfectionLevel());
+				break;
+			case MEXICO_CITY:
+				copiedCity = new MexicoCity(currCity.getInfectionLevel());
+				break;
+			case MIAMI:
+				copiedCity = new Miami(currCity.getInfectionLevel());
+				break;
+			case MILAN:
+				copiedCity = new Milan(currCity.getInfectionLevel());
+				break;
+			case MONTREAL:
+				copiedCity = new Montreal(currCity.getInfectionLevel());
+				break;
+			case MOSCOW:
+				copiedCity = new Moscow(currCity.getInfectionLevel());
+				break;
+			case MUMBAI:
+				copiedCity = new Mumbai(currCity.getInfectionLevel());
+				break;
+			case NEW_YORK:
+				copiedCity = new NewYork(currCity.getInfectionLevel());
+				break;
+			case OSAKA:
+				copiedCity = new Osaka(currCity.getInfectionLevel());
+				break;
+			case PARIS:
+				copiedCity = new Paris(currCity.getInfectionLevel());
+				break;
+			case RIYADH:
+				copiedCity = new Riyadh(currCity.getInfectionLevel());
+				break;
+			case SAN_FRANSISCO:
+				copiedCity = new SanFransisco(currCity.getInfectionLevel());
+				break;
+			case SANTIAGO:
+				copiedCity = new Santiago(currCity.getInfectionLevel());
+				break;
+			case SAO_PAULO:
+				copiedCity = new SaoPaulo(currCity.getInfectionLevel());
+				break;
+			case SEOUL:
+				copiedCity = new Seoul(currCity.getInfectionLevel());
+				break;
+			case SHANGHAI:
+				copiedCity = new Shanghai(currCity.getInfectionLevel());
+				break;
+			case ST_PETERSBURG:
+				copiedCity = new StPetersburg(currCity.getInfectionLevel());
+				break;
+			case SYDNEY:
+				copiedCity = new Sydney(currCity.getInfectionLevel());
+				break;
+			case TAIPEI:
+				copiedCity = new Taipei(currCity.getInfectionLevel());
+				break;
+			case TEHRAN:
+				copiedCity = new Tehran(currCity.getInfectionLevel());
+				break;
+			case TOKYO:
+				copiedCity = new Tokyo(currCity.getInfectionLevel());
+				break;
+			case WASHINGTON:
+				copiedCity = new Washington(currCity.getInfectionLevel());
+				break;
+			default:
+				// NOT POSSIBLE
+				break;
+			}
+
+			copiedWorldMap.put(cityEnum, copiedCity);
+		}
+
+		return copiedWorldMap;
+	}
+
+	/**
 	 * The main entry point to run the {@link InfectionSimulator}.
 	 * 
 	 * @param args
@@ -290,8 +473,20 @@ public class InfectionSimulator {
 		InfectionSimulator simulator = new InfectionSimulator(
 				loadInitialInfections());
 
-		// TODO call this correctly.
-		simulator.runSimulation(null, null);
+		List<Integer> infectionSeeds = new ArrayList<Integer>();
+		Random rand = new Random(7);
+		for (int i = 0; i < simulator.MAX_TURNS; i++)
+			infectionSeeds.add(rand.nextInt());
+
+		simulator.runSimulation(null, infectionSeeds);
+
+		// Map<CityEnum, City> copiedWorld = simulator.snapshotTheWorld();
+		// copiedWorld.get(CityEnum.SAN_FRANSISCO).setInfectionLevel(1000);
+		//
+		// System.out.println(simulator.worldMap.get(CityEnum.SAN_FRANSISCO)
+		// .getInfectionLevel());
+		// System.out.println(copiedWorld.get(CityEnum.SAN_FRANSISCO)
+		// .getInfectionLevel());
 
 		// Map<CityEnum, City> mapA = new HashMap<CityEnum, City>();
 		// mapA.put(CityEnum.ALGIERS, new Algiers(10));

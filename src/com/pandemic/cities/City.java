@@ -10,9 +10,9 @@ import java.util.List;
  */
 public abstract class City {
 
-	private String name;
-	private int infectionLevel = 0;
-	private List<CityEnum> neighbors;
+	protected String name;
+	protected int infectionLevel = 0;
+	protected List<CityEnum> neighbors;
 
 	// Begin getters and setters
 	public String getName() {
