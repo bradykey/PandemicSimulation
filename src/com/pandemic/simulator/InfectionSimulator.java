@@ -70,8 +70,12 @@ public class InfectionSimulator {
 	private List<CityEnum> initialInfections;
 	private int currTurn;
 	private Map<CityEnum, City> worldMap;
+	private List<CityEnum> citiesInfectedDuringCurrTurn;
 
 	// final vars representing the simulation
+	// deterministic value of this play scenario; i.e. changing this will give
+	// you a different initial condition and outcome.
+	private final int GAME_SEED = 1;
 	private final int MAX_TURNS = 60;
 	private final int INFECTION_RATE = 2;
 	private final int NUM_CITIES = 48;
@@ -127,6 +131,7 @@ public class InfectionSimulator {
 
 		infectInitialCities();
 
+		citiesInfectedDuringCurrTurn = new ArrayList<CityEnum>();
 		currTurn = 0;
 	}
 
@@ -216,13 +221,15 @@ public class InfectionSimulator {
 	 * @param prngSeeds
 	 *            a List<Integer> that contains the seeds which will be used to
 	 *            define the cities that will be infected during this specific
-	 *            board game scenario. This needs to be of length MAX_TURNS.
+	 *            play scenario. This needs to be of length MAX_TURNS.
 	 */
 	private List<Map<CityEnum, City>> runSimulation(List<Turn> path,
 			List<Integer> prngSeeds) {
 		List<Map<CityEnum, City>> worldMapSnapshots = new ArrayList<Map<CityEnum, City>>();
 
 		while (currTurn < MAX_TURNS) {
+			System.out.println("\nTurn #" + currTurn + "\n");
+
 			if (path != null)
 				for (Action action : path.get(currTurn).getActions()) {
 					// run player's actions
@@ -244,9 +251,6 @@ public class InfectionSimulator {
 			// increment week
 			currTurn++;
 		}
-
-		// XXX debugging...
-		System.out.println("\n");
 
 		return worldMapSnapshots;
 	}
@@ -271,7 +275,10 @@ public class InfectionSimulator {
 			idx = prng.nextInt(NUM_CITIES);
 			randCityEnum = CITY_ALPHA_ORDER_LIST.get(idx);
 
-			increaseCityInfection(worldMap.get(randCityEnum));
+			increaseCityInfection(randCityEnum);
+
+			// reset the cities infected on this turn
+			citiesInfectedDuringCurrTurn.clear();
 		}
 	}
 
@@ -279,10 +286,15 @@ public class InfectionSimulator {
 	 * Increase the infection level of the passed in city by 1. If it is already
 	 * at the max infection level, recursively spread to the neighbors.
 	 * 
-	 * @param cityToInfect
-	 *            the {@link City} to infect.
+	 * @param cityEnum
+	 *            the {@link CityEnum} of the {@link City} to infect.
 	 */
-	private void increaseCityInfection(City cityToInfect) {
+	private void increaseCityInfection(CityEnum cityEnum) {
+		City cityToInfect = worldMap.get(cityEnum);
+
+		// mark it as infected on this turn
+		citiesInfectedDuringCurrTurn.add(cityEnum);
+
 		if (cityToInfect.getInfectionLevel() < MAX_INFECTION_OF_CITY)
 			// just add 1 infection level
 			cityToInfect
@@ -290,7 +302,9 @@ public class InfectionSimulator {
 		else
 			// infect all of its neighbor cities
 			for (CityEnum neighborCityEnum : cityToInfect.getNeighbors())
-				increaseCityInfection(worldMap.get(neighborCityEnum));
+				// only if they haven't been infected on this turn
+				if (!citiesInfectedDuringCurrTurn.contains(neighborCityEnum))
+					increaseCityInfection(neighborCityEnum);
 	}
 
 	/**
@@ -474,7 +488,8 @@ public class InfectionSimulator {
 				loadInitialInfections());
 
 		List<Integer> infectionSeeds = new ArrayList<Integer>();
-		Random rand = new Random(7);
+
+		Random rand = new Random(simulator.GAME_SEED);
 		for (int i = 0; i < simulator.MAX_TURNS; i++)
 			infectionSeeds.add(rand.nextInt());
 
