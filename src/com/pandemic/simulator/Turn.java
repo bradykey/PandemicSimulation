@@ -11,9 +11,6 @@ import com.pandemic.simulator.actions.Action;
  * @author Brady
  */
 public class Turn {
-
-	private final int NUM_ACTIONS_PER_TURN = 4;
-
 	private List<Action> actions;
 
 	/**
@@ -22,16 +19,8 @@ public class Turn {
 	 * 
 	 * @param actions
 	 *            the {@code List<Action>} that defines this {@code Turn}.
-	 * @throws Exception
-	 *             if the number of actions is not equal to the
-	 *             {@code NUM_ACTIONS_PER_TURN}.
 	 */
-	public Turn(List<Action> actions) throws Exception {
-		if (actions.size() != NUM_ACTIONS_PER_TURN)
-			throw new Exception(
-					"The list of actions representing a turn must be equal to "
-							+ NUM_ACTIONS_PER_TURN + ".");
-
+	public Turn(List<Action> actions) {
 		this.actions = actions;
 	}
 
