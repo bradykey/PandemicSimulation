@@ -67,19 +67,19 @@ import com.pandemic.simulator.actions.Action;
  * @author BKey
  */
 public class InfectionSimulator {
-	private List<CityEnum> initialInfections;
+	private Random prng;
 	private int currTurn;
 	private Map<CityEnum, City> worldMap;
 	private List<CityEnum> citiesInfectedDuringCurrTurn;
+	private List<CityEnum> cityInfectionOrder;
 
-	// final vars representing the simulation
-	// deterministic value of this play scenario; i.e. changing this will give
-	// you a different initial condition and outcome.
-	private final int GAME_SEED = 1;
+	/* FINAL VARS REPRESENTING THE SIMULATION */
 	private final int MAX_TURNS = 60;
 	private final int INFECTION_RATE = 2;
 	private final int NUM_CITIES = 48;
 	private final int MAX_INFECTION_OF_CITY = 3;
+	private final int NUM_INITIALLY_INFECTED = 9;
+	// used as a lookup table
 	private final List<CityEnum> CITY_ALPHA_ORDER_LIST = new ArrayList<CityEnum>(
 			Arrays.asList(CityEnum.ALGIERS, CityEnum.ATLANTA, CityEnum.BAGHDAD,
 					CityEnum.BANGKOK, CityEnum.BEIJING, CityEnum.BOGOTA,
@@ -102,21 +102,15 @@ public class InfectionSimulator {
 	/**
 	 * Constructor for a simulation of the Pandemic board game.
 	 * 
-	 * @param initialInfections
-	 *            the {@code List<CityEnum>} that contains the initial state of
-	 *            the game. The first 3 cities in the list will contain 3
-	 *            infection levels each, the next 3 will have an infection level
-	 *            of 2 and the final 3 will have an infection level of 1.
-	 *            Therefore, the list must be of length 9.
-	 * @throws Exception
+	 * @param prng
+	 *            this seeded {@code Random} number generator will allow for
+	 *            deterministic play based on the GAME_SEED. i.e. the same exact
+	 *            spread of the virus (which cities get infected and in what
+	 *            order, what cities are initially infected etc.) will be
+	 *            determined by this {@code Random} number generator.
 	 */
-	public InfectionSimulator(List<CityEnum> initialInfections)
-			throws Exception {
-		if (initialInfections.size() != 9)
-			throw new Exception(
-					"The list of initial infections must be equal to 9.");
-
-		this.initialInfections = initialInfections;
+	public InfectionSimulator(Random prng) {
+		this.prng = prng;
 
 		initSimulation();
 	}
@@ -126,10 +120,11 @@ public class InfectionSimulator {
 	 */
 	private void initSimulation() {
 		worldMap = new HashMap<CityEnum, City>();
+		cityInfectionOrder = new ArrayList<CityEnum>();
 
 		fillWorldMap();
-
 		infectInitialCities();
+		loadCityInfectionOrder();
 
 		citiesInfectedDuringCurrTurn = new ArrayList<CityEnum>();
 		currTurn = 0;
@@ -188,9 +183,6 @@ public class InfectionSimulator {
 		worldMap.put(CityEnum.TEHRAN, new Tehran(0));
 		worldMap.put(CityEnum.TOKYO, new Tokyo(0));
 		worldMap.put(CityEnum.WASHINGTON, new Washington(0));
-
-		// for (CityEnum city : worldMap.keySet())
-		// System.out.println(city.toString());
 	}
 
 	/**
@@ -198,7 +190,7 @@ public class InfectionSimulator {
 	 */
 	private void infectInitialCities() {
 		int ctr = 0;
-		for (CityEnum city : initialInfections) {
+		for (CityEnum city : loadInitialInfections()) {
 			if (ctr < 3)
 				worldMap.get(city).setInfectionLevel(3);
 			else if (ctr >= 3 && ctr < 6)
@@ -208,6 +200,26 @@ public class InfectionSimulator {
 
 			ctr++;
 		}
+	}
+
+	/**
+	 * Create the initial configuration of the specific board game simulation.
+	 * That is, the 9 cities that will initially start with some amount of
+	 * infection.
+	 * 
+	 * @return the {@code List<CityEnum>} that contain those 9 {@link CityEnum}s
+	 *         that will start with an infection level.
+	 */
+	private List<CityEnum> loadInitialInfections() {
+		List<CityEnum> initiallyInfectedCities = new ArrayList<CityEnum>();
+
+		for (int i = 0; i < NUM_INITIALLY_INFECTED; i++) {
+			// 0 - number of cities, inclusive
+			initiallyInfectedCities.add(CITY_ALPHA_ORDER_LIST.get(prng
+					.nextInt(NUM_CITIES)));
+		}
+
+		return initiallyInfectedCities;
 	}
 
 	/**
@@ -221,10 +233,9 @@ public class InfectionSimulator {
 	 * @param prngSeeds
 	 *            a List<Integer> that contains the seeds which will be used to
 	 *            define the cities that will be infected during this specific
-	 *            play scenario. This needs to be of length MAX_TURNS.
+	 *            game. This needs to be of length MAX_TURNS.
 	 */
-	private List<Map<CityEnum, City>> runSimulation(List<Turn> path,
-			List<Integer> prngSeeds) {
+	private List<Map<CityEnum, City>> runSimulation(List<Turn> path) {
 		List<Map<CityEnum, City>> worldMapSnapshots = new ArrayList<Map<CityEnum, City>>();
 
 		while (currTurn < MAX_TURNS) {
@@ -235,8 +246,7 @@ public class InfectionSimulator {
 					// run player's actions
 				}
 
-			// infect
-			infect(prngSeeds.get(currTurn));
+			infect();
 
 			// snapshot the world map; must be a deep copy of the map
 			worldMapSnapshots.add(snapshotTheWorld());
@@ -256,26 +266,35 @@ public class InfectionSimulator {
 	}
 
 	/**
-	 * Infect the world. This includes randomly choosing {@code INFECTION_RATE}
-	 * number of cities to add 1 disease cube to. If the {@link City} already
-	 * has a maximum number of disease cubes, spread the infection to its
-	 * connected cities.
+	 * This "draws" the cities to infect for each of the turns of the game.
+	 * Since it's based on the pseudo {@code Random} number generator, the same
+	 * cards will be drawn at each turn unless the prng is changed.
 	 * 
-	 * @param seed
-	 *            the {@code Integer} that will deterministically choose the
-	 *            random cities to infect at this specific turn.
+	 * @return a List<CityEnum>s that contains the cities to infect at each
+	 *         turn. This list will be of length {@code MAX_TURNS} *
+	 *         {@code INFECTION_RATE}.
 	 */
-	private void infect(Integer seed) {
-		CityEnum randCityEnum;
-		Random prng = new Random(seed);
-		int idx;
+	private void loadCityInfectionOrder() {
+		for (int i = 0; i < MAX_TURNS * INFECTION_RATE; i++)
+			cityInfectionOrder.add(CITY_ALPHA_ORDER_LIST.get(prng
+					.nextInt(NUM_CITIES)));
+	}
+
+	/**
+	 * Infect the world. This includes infecting the {@code INFECTION_RATE}
+	 * number of cities by adding 1 disease cube to. If the {@link City} already
+	 * has a maximum number of disease cubes, spread the infection to its
+	 * neighboring cities.
+	 */
+	private void infect() {
+		CityEnum currCityEnumToInfect;
 
 		for (int i = 0; i < INFECTION_RATE; i++) {
-			// 0 - number of cities, inclusive
-			idx = prng.nextInt(NUM_CITIES);
-			randCityEnum = CITY_ALPHA_ORDER_LIST.get(idx);
+			// TODO turn 0 I need 0 and 1, turn 1 I need 2 and 3, turn 2 I need
+			// 4 and 5, turn 3 I need 6 and 7
+			currCityEnumToInfect = cityInfectionOrder.get((currTurn * 2) + i);
 
-			increaseCityInfection(randCityEnum);
+			increaseCityInfection(currCityEnumToInfect);
 
 			// reset the cities infected on this turn
 			citiesInfectedDuringCurrTurn.clear();
@@ -484,16 +503,17 @@ public class InfectionSimulator {
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		InfectionSimulator simulator = new InfectionSimulator(
-				loadInitialInfections());
+		// deterministic value representing this game; i.e. changing this will
+		// give you a different initial condition and outcome of the game. If
+		// you don't change it, the same game will be simulated every time.
+		final int GAME_SEED = 1;
 
-		List<Integer> infectionSeeds = new ArrayList<Integer>();
+		// random number generator that dictates the game
+		Random prng = new Random(GAME_SEED);
 
-		Random rand = new Random(simulator.GAME_SEED);
-		for (int i = 0; i < simulator.MAX_TURNS; i++)
-			infectionSeeds.add(rand.nextInt());
+		InfectionSimulator simulator = new InfectionSimulator(prng);
 
-		simulator.runSimulation(null, infectionSeeds);
+		simulator.runSimulation(null);
 
 		// Map<CityEnum, City> copiedWorld = simulator.snapshotTheWorld();
 		// copiedWorld.get(CityEnum.SAN_FRANSISCO).setInfectionLevel(1000);
@@ -527,10 +547,10 @@ public class InfectionSimulator {
 	 * That is, the 3 cities with an infection level of 3, 3 cities with an
 	 * infection level of 2 and 3 cities with an infection level of 1.
 	 */
-	private static List<CityEnum> loadInitialInfections() {
-		return new ArrayList<CityEnum>(Arrays.asList(CityEnum.SAN_FRANSISCO,
-				CityEnum.LOS_ANGELES, CityEnum.CHICAGO, CityEnum.MEXICO_CITY,
-				CityEnum.ATLANTA, CityEnum.MONTREAL, CityEnum.MIAMI,
-				CityEnum.WASHINGTON, CityEnum.NEW_YORK));
-	}
+	// private static List<CityEnum> loadInitialInfections() {
+	// return new ArrayList<CityEnum>(Arrays.asList(CityEnum.SAN_FRANSISCO,
+	// CityEnum.LOS_ANGELES, CityEnum.CHICAGO, CityEnum.MEXICO_CITY,
+	// CityEnum.ATLANTA, CityEnum.MONTREAL, CityEnum.MIAMI,
+	// CityEnum.WASHINGTON, CityEnum.NEW_YORK));
+	// }
 }
