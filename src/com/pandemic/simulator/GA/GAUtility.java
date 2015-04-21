@@ -4,9 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import com.pandemic.cities.City;
 import com.pandemic.cities.CityEnum;
+import com.pandemic.simulator.Path;
 import com.pandemic.simulator.SimVars;
 import com.pandemic.simulator.Turn;
+import com.pandemic.simulator.World;
 import com.pandemic.simulator.actions.Action;
 import com.pandemic.simulator.actions.MoveAction;
 import com.pandemic.simulator.actions.TreatDiseaseAction;
@@ -25,10 +28,10 @@ public class GAUtility {
 	 * @param seed
 	 *            the seed for the {@code Random} number generator
 	 * 
-	 * @return the {@code List<Turn>}s that is the "genome" which represents a
-	 *         path played by a player on a certain game.
+	 * @return the {@code Path} that is the "genome" which represents a path
+	 *         played by a player on a certain game.
 	 */
-	public static List<Turn> generateRandomPath(int seed) {
+	public static Path generateRandomPath(int seed) {
 		return createPath(new Random(seed));
 	}
 
@@ -38,10 +41,10 @@ public class GAUtility {
 	 * Generate a random {@code MAX_TURNS} set of {@link Turn}s that defines a
 	 * single path for a game.
 	 * 
-	 * @return the {@code List<Turn>}s that is the "genome" which represents a
-	 *         path played by a player on a certain game.
+	 * @return the {@code Path} that is the "genome" which represents a path
+	 *         played by a player on a certain game.
 	 */
-	public static List<Turn> generateRandomPath() {
+	public static Path generateRandomPath() {
 		return createPath(new Random());
 	}
 
@@ -52,13 +55,13 @@ public class GAUtility {
 	 * @param prng
 	 *            the {@code Random} number generator.
 	 * 
-	 * @return the {@code List<Turn>} that is the path of the game.
+	 * @return the {@code Path} that is the path of the game.
 	 */
-	private static List<Turn> createPath(Random prng) {
-		List<Turn> path = new ArrayList<Turn>();
+	private static Path createPath(Random prng) {
+		Path path = new Path(new ArrayList<Turn>());
 
 		for (int turnNum = 0; turnNum < SimVars.MAX_TURNS; turnNum++)
-			path.add(generateTurn(prng));
+			path.getTurns().add(generateTurn(prng));
 
 		return path;
 	}
@@ -86,5 +89,32 @@ public class GAUtility {
 		}
 
 		return new Turn(actions);
+	}
+
+	/**
+	 * Loop through the {@link World} and sum up the infection levels of each
+	 * city.
+	 * 
+	 * @return the total infection level of the world
+	 */
+	public static int calcTotalInfectionLevel(World world) {
+		int totalInfection = 0;
+		for (City city : world.getWorldMap().values())
+			totalInfection += city.getInfectionLevel();
+
+		return totalInfection;
+	}
+
+	/**
+	 * Just get the final {@link World} from the result of a single path
+	 * simulation on the game.
+	 * 
+	 * @param pathResult
+	 *            the {@code List<World>} that contains all of the snapshots
+	 *            from the {@link Path} that was run on the game.
+	 * @return the last {@link World} in the {@code List<World>}s.
+	 */
+	public static World getFinalWorldMapSnapshot(List<World> pathResult) {
+		return pathResult.get(pathResult.size() - 1);
 	}
 }

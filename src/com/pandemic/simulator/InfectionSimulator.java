@@ -1,9 +1,9 @@
 package com.pandemic.simulator;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
 
@@ -71,9 +71,10 @@ import com.pandemic.simulator.actions.MoveAction;
 public class InfectionSimulator {
 	private Random prng;
 	private int currTurn;
-	private Map<CityEnum, City> worldMap;
+	private World world;
 	private List<CityEnum> citiesInfectedDuringCurrTurn;
 	private List<CityEnum> cityInfectionOrder;
+	private List<CityEnum> initiallyInfectedCities;
 	private CityEnum playerLocation;
 
 	/**
@@ -83,8 +84,8 @@ public class InfectionSimulator {
 	 *            this seeded {@code Random} number generator will allow for
 	 *            deterministic play based on the GAME_SEED. i.e. the same exact
 	 *            spread of the virus (which cities get infected and in what
-	 *            order, what cities are initially infected etc.) will be
-	 *            determined by this {@code Random} number generator.
+	 *            order, what cities are initially infected) will be determined
+	 *            by this {@code Random} number generator.
 	 */
 	public InfectionSimulator(Random prng) {
 		this.prng = prng;
@@ -96,7 +97,7 @@ public class InfectionSimulator {
 	 * Initialize the board game simulation.
 	 */
 	private void initSimulation() {
-		worldMap = new HashMap<CityEnum, City>();
+		world = new World(new HashMap<CityEnum, City>());
 		cityInfectionOrder = new ArrayList<CityEnum>();
 
 		fillWorldMap();
@@ -110,72 +111,75 @@ public class InfectionSimulator {
 	}
 
 	/**
-	 * Create one object for each city and place it in the {@code worldMap}.
+	 * Create one object for each city and place it in the {@code world}.
 	 */
 	private void fillWorldMap() {
 		// create all cities
-		worldMap.put(CityEnum.ALGIERS, new Algiers(0));
-		worldMap.put(CityEnum.ATLANTA, new Atlanta(0));
-		worldMap.put(CityEnum.BAGHDAD, new Baghdad(0));
-		worldMap.put(CityEnum.BANGKOK, new Bangkok(0));
-		worldMap.put(CityEnum.BEIJING, new Beijing(0));
-		worldMap.put(CityEnum.BOGOTA, new Bogota(0));
-		worldMap.put(CityEnum.BUENOS_AIRES, new BuenosAires(0));
-		worldMap.put(CityEnum.CAIRO, new Cairo(0));
-		worldMap.put(CityEnum.CHENNAI, new Chennai(0));
-		worldMap.put(CityEnum.CHICAGO, new Chicago(0));
-		worldMap.put(CityEnum.DELHI, new Delhi(0));
-		worldMap.put(CityEnum.ESSEN, new Essen(0));
-		worldMap.put(CityEnum.HO_CHI_MINH_CITY, new HoChiMinhCity(0));
-		worldMap.put(CityEnum.HONG_KONG, new HongKong(0));
-		worldMap.put(CityEnum.ISTANBUL, new Istanbul(0));
-		worldMap.put(CityEnum.JAKARTA, new Jakarta(0));
-		worldMap.put(CityEnum.JOHANNESBURG, new Johannesburg(0));
-		worldMap.put(CityEnum.KARACHI, new Karachi(0));
-		worldMap.put(CityEnum.KHARTOUM, new Khartoum(0));
-		worldMap.put(CityEnum.KINSHASA, new Kinshasa(0));
-		worldMap.put(CityEnum.KOLKATA, new Kolkata(0));
-		worldMap.put(CityEnum.LAGOS, new Lagos(0));
-		worldMap.put(CityEnum.LIMA, new Lima(0));
-		worldMap.put(CityEnum.LONDON, new London(0));
-		worldMap.put(CityEnum.LOS_ANGELES, new LosAngeles(0));
-		worldMap.put(CityEnum.MADRID, new Madrid(0));
-		worldMap.put(CityEnum.MANILA, new Manila(0));
-		worldMap.put(CityEnum.MEXICO_CITY, new MexicoCity(0));
-		worldMap.put(CityEnum.MIAMI, new Miami(0));
-		worldMap.put(CityEnum.MILAN, new Milan(0));
-		worldMap.put(CityEnum.MONTREAL, new Montreal(0));
-		worldMap.put(CityEnum.MOSCOW, new Moscow(0));
-		worldMap.put(CityEnum.MUMBAI, new Mumbai(0));
-		worldMap.put(CityEnum.NEW_YORK, new NewYork(0));
-		worldMap.put(CityEnum.OSAKA, new Osaka(0));
-		worldMap.put(CityEnum.PARIS, new Paris(0));
-		worldMap.put(CityEnum.RIYADH, new Riyadh(0));
-		worldMap.put(CityEnum.SAN_FRANSISCO, new SanFransisco(0));
-		worldMap.put(CityEnum.SANTIAGO, new Santiago(0));
-		worldMap.put(CityEnum.SAO_PAULO, new SaoPaulo(0));
-		worldMap.put(CityEnum.SEOUL, new Seoul(0));
-		worldMap.put(CityEnum.SHANGHAI, new Shanghai(0));
-		worldMap.put(CityEnum.ST_PETERSBURG, new StPetersburg(0));
-		worldMap.put(CityEnum.SYDNEY, new Sydney(0));
-		worldMap.put(CityEnum.TAIPEI, new Taipei(0));
-		worldMap.put(CityEnum.TEHRAN, new Tehran(0));
-		worldMap.put(CityEnum.TOKYO, new Tokyo(0));
-		worldMap.put(CityEnum.WASHINGTON, new Washington(0));
+		world.getWorldMap().put(CityEnum.ALGIERS, new Algiers(0));
+		world.getWorldMap().put(CityEnum.ATLANTA, new Atlanta(0));
+		world.getWorldMap().put(CityEnum.BAGHDAD, new Baghdad(0));
+		world.getWorldMap().put(CityEnum.BANGKOK, new Bangkok(0));
+		world.getWorldMap().put(CityEnum.BEIJING, new Beijing(0));
+		world.getWorldMap().put(CityEnum.BOGOTA, new Bogota(0));
+		world.getWorldMap().put(CityEnum.BUENOS_AIRES, new BuenosAires(0));
+		world.getWorldMap().put(CityEnum.CAIRO, new Cairo(0));
+		world.getWorldMap().put(CityEnum.CHENNAI, new Chennai(0));
+		world.getWorldMap().put(CityEnum.CHICAGO, new Chicago(0));
+		world.getWorldMap().put(CityEnum.DELHI, new Delhi(0));
+		world.getWorldMap().put(CityEnum.ESSEN, new Essen(0));
+		world.getWorldMap()
+				.put(CityEnum.HO_CHI_MINH_CITY, new HoChiMinhCity(0));
+		world.getWorldMap().put(CityEnum.HONG_KONG, new HongKong(0));
+		world.getWorldMap().put(CityEnum.ISTANBUL, new Istanbul(0));
+		world.getWorldMap().put(CityEnum.JAKARTA, new Jakarta(0));
+		world.getWorldMap().put(CityEnum.JOHANNESBURG, new Johannesburg(0));
+		world.getWorldMap().put(CityEnum.KARACHI, new Karachi(0));
+		world.getWorldMap().put(CityEnum.KHARTOUM, new Khartoum(0));
+		world.getWorldMap().put(CityEnum.KINSHASA, new Kinshasa(0));
+		world.getWorldMap().put(CityEnum.KOLKATA, new Kolkata(0));
+		world.getWorldMap().put(CityEnum.LAGOS, new Lagos(0));
+		world.getWorldMap().put(CityEnum.LIMA, new Lima(0));
+		world.getWorldMap().put(CityEnum.LONDON, new London(0));
+		world.getWorldMap().put(CityEnum.LOS_ANGELES, new LosAngeles(0));
+		world.getWorldMap().put(CityEnum.MADRID, new Madrid(0));
+		world.getWorldMap().put(CityEnum.MANILA, new Manila(0));
+		world.getWorldMap().put(CityEnum.MEXICO_CITY, new MexicoCity(0));
+		world.getWorldMap().put(CityEnum.MIAMI, new Miami(0));
+		world.getWorldMap().put(CityEnum.MILAN, new Milan(0));
+		world.getWorldMap().put(CityEnum.MONTREAL, new Montreal(0));
+		world.getWorldMap().put(CityEnum.MOSCOW, new Moscow(0));
+		world.getWorldMap().put(CityEnum.MUMBAI, new Mumbai(0));
+		world.getWorldMap().put(CityEnum.NEW_YORK, new NewYork(0));
+		world.getWorldMap().put(CityEnum.OSAKA, new Osaka(0));
+		world.getWorldMap().put(CityEnum.PARIS, new Paris(0));
+		world.getWorldMap().put(CityEnum.RIYADH, new Riyadh(0));
+		world.getWorldMap().put(CityEnum.SAN_FRANSISCO, new SanFransisco(0));
+		world.getWorldMap().put(CityEnum.SANTIAGO, new Santiago(0));
+		world.getWorldMap().put(CityEnum.SAO_PAULO, new SaoPaulo(0));
+		world.getWorldMap().put(CityEnum.SEOUL, new Seoul(0));
+		world.getWorldMap().put(CityEnum.SHANGHAI, new Shanghai(0));
+		world.getWorldMap().put(CityEnum.ST_PETERSBURG, new StPetersburg(0));
+		world.getWorldMap().put(CityEnum.SYDNEY, new Sydney(0));
+		world.getWorldMap().put(CityEnum.TAIPEI, new Taipei(0));
+		world.getWorldMap().put(CityEnum.TEHRAN, new Tehran(0));
+		world.getWorldMap().put(CityEnum.TOKYO, new Tokyo(0));
+		world.getWorldMap().put(CityEnum.WASHINGTON, new Washington(0));
 	}
 
 	/**
 	 * Set the infection level of each of the initially infected cities.
 	 */
 	private void infectInitialCities() {
+		initiallyInfectedCities = loadInitialInfections();
+
 		int ctr = 0;
-		for (CityEnum city : loadInitialInfections()) {
+		for (CityEnum city : initiallyInfectedCities) {
 			if (ctr < 3)
-				worldMap.get(city).setInfectionLevel(3);
+				world.getWorldMap().get(city).setInfectionLevel(3);
 			else if (ctr >= 3 && ctr < 6)
-				worldMap.get(city).setInfectionLevel(2);
+				world.getWorldMap().get(city).setInfectionLevel(2);
 			else
-				worldMap.get(city).setInfectionLevel(1);
+				world.getWorldMap().get(city).setInfectionLevel(1);
 
 			ctr++;
 		}
@@ -212,28 +216,31 @@ public class InfectionSimulator {
 	 * This method runs the simulation with the passed in player's path.
 	 * 
 	 * @param path
-	 *            the List<Turn> that represents the path in which the player
-	 *            played the game. The path must be equal to the maximum number
-	 *            of weeks ({@code Turn}s) in a single game/simulation.
+	 *            the Path that represents the path in which the player played
+	 *            the game. The path must be equal to the maximum number of
+	 *            weeks ({@code Turn}s) in a single game/simulation.
+	 * 
+	 * @return the {@code List} containing the snapshot {@link World}s after
+	 *         every turn of the game.
 	 */
-	private List<Map<CityEnum, City>> runSimulation(List<Turn> path) {
-		List<Map<CityEnum, City>> worldMapSnapshots = new ArrayList<Map<CityEnum, City>>();
+	private List<World> runSimulation(Path path) {
+		List<World> worldSnapshots = new ArrayList<World>();
 
-		System.out.println("INITIAL SETUP:\n");
-		printWorldMap(worldMap);
+		// System.out.println("INITIAL CONFIGURATION:\n");
+		// printWorldMap(world);
 
 		while (currTurn < SimVars.MAX_TURNS) {
-			System.out.println("\nTurn #" + currTurn + "\n");
+			// System.out.println("\nTurn #" + currTurn + "\n");
 
 			if (path != null) {
 				City playerCity;
-				for (Action action : path.get(currTurn).getActions()) {
+				for (Action action : path.getTurns().get(currTurn).getActions()) {
 					// run player's actions
 					if (action instanceof MoveAction)
 						playerLocation = ((MoveAction) action).getMoveTo();
 					else {
 						// cure at the current city
-						playerCity = worldMap.get(playerLocation);
+						playerCity = world.getWorldMap().get(playerLocation);
 						// only if it isn't already at 0 (can't go negative)
 						if (playerCity.getInfectionLevel() > 0)
 							playerCity.setInfectionLevel(playerCity
@@ -245,16 +252,16 @@ public class InfectionSimulator {
 			infect();
 
 			// snapshot the world map; must be a deep copy
-			worldMapSnapshots.add(snapshotTheWorld());
+			worldSnapshots.add(snapshotTheWorld());
 
 			// XXX print for debugging purposes
-			printWorldMap(worldMapSnapshots.get(currTurn));
+			// printWorldMap(worldMapSnapshots.get(currTurn));
 
 			// increment week
 			currTurn++;
 		}
 
-		return worldMapSnapshots;
+		return worldSnapshots;
 	}
 
 	/**
@@ -304,7 +311,7 @@ public class InfectionSimulator {
 	 *            the {@link CityEnum} of the {@link City} to infect.
 	 */
 	private void increaseCityInfection(CityEnum cityEnum) {
-		City cityToInfect = worldMap.get(cityEnum);
+		City cityToInfect = world.getWorldMap().get(cityEnum);
 
 		// mark it as infected on this turn
 		citiesInfectedDuringCurrTurn.add(cityEnum);
@@ -324,16 +331,16 @@ public class InfectionSimulator {
 	/**
 	 * Create a deep copy of the world map in its current state.
 	 * 
-	 * @return the "snapshot" that is the deep copy of the {@code worldMap}.
+	 * @return the "snapshot" that is the deep copy of the {@code world}.
 	 */
-	private Map<CityEnum, City> snapshotTheWorld() {
-		Map<CityEnum, City> copiedWorldMap = new HashMap<CityEnum, City>();
+	private World snapshotTheWorld() {
+		World copiedWorldMap = new World(new HashMap<CityEnum, City>());
 
 		// loop through all of the cities and create new cities inside of the
 		// new hashmap.
-		for (CityEnum cityEnum : worldMap.keySet()) {
+		for (CityEnum cityEnum : world.getWorldMap().keySet()) {
 			City copiedCity = null;
-			City currCity = worldMap.get(cityEnum);
+			City currCity = world.getWorldMap().get(cityEnum);
 
 			switch (cityEnum) {
 			case ALGIERS:
@@ -485,7 +492,7 @@ public class InfectionSimulator {
 				break;
 			}
 
-			copiedWorldMap.put(cityEnum, copiedCity);
+			copiedWorldMap.getWorldMap().put(cityEnum, copiedCity);
 		}
 
 		return copiedWorldMap;
@@ -496,18 +503,20 @@ public class InfectionSimulator {
 	 * 
 	 * @param mapToPrint
 	 */
-	private void printWorldMap(Map<CityEnum, City> mapToPrint) {
+	private void printWorldMap(World mapToPrint) {
 		// use a tree map so it's sorted automatically
-		Map<CityEnum, City> sortedMap = new TreeMap<CityEnum, City>(mapToPrint);
+		World sortedMap = new World(new TreeMap<CityEnum, City>(
+				mapToPrint.getWorldMap()));
 
-		for (CityEnum cityEnum : sortedMap.keySet())
-			System.out.println(cityEnum.toString() + ": "
-					+ sortedMap.get(cityEnum).getInfectionLevel());
+		for (CityEnum cityEnum : sortedMap.getWorldMap().keySet())
+			System.out
+					.println(cityEnum.toString()
+							+ ": "
+							+ sortedMap.getWorldMap().get(cityEnum)
+									.getInfectionLevel());
 
 		// print total infection and as a percentage
-		int totalInfection = 0;
-		for (City city : mapToPrint.values())
-			totalInfection += city.getInfectionLevel();
+		int totalInfection = GAUtility.calcTotalInfectionLevel(mapToPrint);
 
 		System.out.println("Total Infection Level: " + totalInfection + " ("
 				+ (double) totalInfection
@@ -523,8 +532,9 @@ public class InfectionSimulator {
 	 */
 	public static void main(String[] args) throws Exception {
 		// deterministic value representing this game; i.e. changing this will
-		// give you a different initial condition and outcome of the game. If
-		// you don't change it, the same game will be simulated every time.
+		// give you a different set of initially infected cities as well as a
+		// different infection order.
+		// If you don't change it, the same game will be simulated every time.
 		final int GAME_SEED = 4;
 
 		// random number generator that dictates the game
@@ -532,33 +542,83 @@ public class InfectionSimulator {
 
 		InfectionSimulator simulator = new InfectionSimulator(prng);
 
-		simulator.runSimulation(GAUtility.generateRandomPath(GAME_SEED));
-
-		// Map<CityEnum, City> copiedWorld = simulator.snapshotTheWorld();
-		// copiedWorld.get(CityEnum.SAN_FRANSISCO).setInfectionLevel(1000);
-		//
-		// System.out.println(simulator.worldMap.get(CityEnum.SAN_FRANSISCO)
-		// .getInfectionLevel());
-		// System.out.println(copiedWorld.get(CityEnum.SAN_FRANSISCO)
-		// .getInfectionLevel());
-
-		// Map<CityEnum, City> mapA = new HashMap<CityEnum, City>();
-		// mapA.put(CityEnum.ALGIERS, new Algiers(10));
-		//
-		// Map<CityEnum, City> mapB = new HashMap<CityEnum, City>(mapA);
-		// mapB.put(CityEnum.ATLANTA, new Atlanta(5));
-		// mapB.get(CityEnum.ALGIERS).setInfectionLevel(9);
-		//
-		// mapA.get(CityEnum.ALGIERS).setInfectionLevel(10);
-		// System.out.println("MAP A: ");
-		// for (City val : mapA.values()) {
-		// System.out.println(val.getInfectionLevel());
-		// }
-		//
-		// System.out.println("MAP B: ");
-		// for (City val : mapB.values()) {
-		// System.out.println(val.getInfectionLevel());
-		// }
+		runGA(simulator, GAME_SEED);
 	}
 
+	/**
+	 * Run the genetic algorithm on the {@link InfectionSimulator}.
+	 * 
+	 * @param simulator
+	 *            the {@link InfectionSimulator} that contains the game in which
+	 *            to run the GA on.
+	 * 
+	 * @param GAME_SEED
+	 *            deterministic value representing this game
+	 */
+	private static void runGA(InfectionSimulator simulator, int GAME_SEED) {
+		List<List<World>> allPathResults = new ArrayList<List<World>>();
+		List<Path> population = new ArrayList<Path>();
+		List<Path> elitePaths;
+
+		for (int pathNum = 0; pathNum < SimVars.PATH_POPULATION_SIZE; pathNum++)
+			population.add(GAUtility.generateRandomPath());
+
+		int ctr = 1;
+		int currGeneration = 0;
+		List<World> currPathResult;
+
+		while (currGeneration < 50) {
+			// XXX debugging
+			System.out.println("Start Generation #: " + (currGeneration + 1));
+			// run simulation on entire population of paths
+			for (Path path : population) {
+				// XXX debugging
+				System.out.println("Start Path #: " + ctr);
+				currPathResult = simulator.runSimulation(path);
+				allPathResults.add(currPathResult);
+
+				// calculate fitness; that is the amount of infection in the
+				// world at the final snapshot
+				path.setFitness(GAUtility.calcTotalInfectionLevel(GAUtility
+						.getFinalWorldMapSnapshot(currPathResult)));
+
+				// reset the prng and re-init the simulator for a new path run
+				simulator.prng.setSeed(GAME_SEED);
+				simulator.initSimulation();
+
+				ctr++;
+			}
+
+			// sort based on fitness
+			Collections.sort(population);
+
+			// get the elite paths
+			elitePaths = new ArrayList<Path>();
+			for (int i = 0; i < SimVars.NUM_ELITE; i++)
+				elitePaths.add(population.get(i));
+
+			// crossover
+			// crossoverTheElite();
+
+			currGeneration++;
+		}
+	}
+
+	/**
+	 * Find the indices of the elite paths in the population.
+	 * 
+	 * @param fitnesses
+	 *            the {@code List<Integers>} that is the unsorted fitness values
+	 *            that correspond to the paths in the population.
+	 * 
+	 * @return the {@code List<Integer>} that contains the indices of the elite
+	 *         paths.
+	 */
+	public static List<Integer> getEliteIdxsFromFitnesses(
+			List<Integer> fitnesses) {
+		List<Integer> elitePathIdxs = new ArrayList<Integer>();
+
+		return elitePathIdxs;
+
+	}
 }

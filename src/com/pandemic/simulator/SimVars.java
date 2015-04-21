@@ -39,4 +39,9 @@ public class SimVars {
 					CityEnum.SHANGHAI, CityEnum.ST_PETERSBURG, CityEnum.SYDNEY,
 					CityEnum.TAIPEI, CityEnum.TEHRAN, CityEnum.TOKYO,
 					CityEnum.WASHINGTON));
+
+	// GA Vars
+	public static final int PATH_POPULATION_SIZE = 100;
+	public static final int NUM_ELITE = 20;
+	public static final int NUM_GENERATIONS = 50;
 }
