@@ -60,6 +60,7 @@ import com.pandemic.cities.Washington;
 import com.pandemic.simulator.GA.GAUtility;
 import com.pandemic.simulator.actions.Action;
 import com.pandemic.simulator.actions.MoveAction;
+import com.pandemic.simulator.actions.TreatDiseaseAction;
 
 /**
  * This is the main simulator for the CA part of the Pandemic board game
@@ -559,6 +560,7 @@ public class InfectionSimulator {
 		List<List<World>> allPathResults = new ArrayList<List<World>>();
 		List<Path> population = new ArrayList<Path>();
 		List<Path> elitePaths;
+		List<Path> offspring;
 
 		for (int pathNum = 0; pathNum < SimVars.PATH_POPULATION_SIZE; pathNum++)
 			population.add(GAUtility.generateRandomPath());
@@ -570,10 +572,12 @@ public class InfectionSimulator {
 		while (currGeneration < 50) {
 			// XXX debugging
 			System.out.println("Start Generation #: " + (currGeneration + 1));
+
 			// run simulation on entire population of paths
 			for (Path path : population) {
 				// XXX debugging
-				System.out.println("Start Path #: " + ctr);
+				//System.out.println("Start Path #: " + ctr);
+
 				currPathResult = simulator.runSimulation(path);
 				allPathResults.add(currPathResult);
 
@@ -586,11 +590,18 @@ public class InfectionSimulator {
 				simulator.prng.setSeed(GAME_SEED);
 				simulator.initSimulation();
 
+				// XXX debugging
 				ctr++;
 			}
 
 			// sort based on fitness
 			Collections.sort(population);
+
+			simulator.printWorldMap(simulator.runSimulation(population.get(0))
+					.get(SimVars.MAX_TURNS - 1));
+			// reset the prng and re-init the simulator for a new path run
+			simulator.prng.setSeed(GAME_SEED);
+			simulator.initSimulation();
 
 			// get the elite paths
 			elitePaths = new ArrayList<Path>();
@@ -598,27 +609,163 @@ public class InfectionSimulator {
 				elitePaths.add(population.get(i));
 
 			// crossover
-			// crossoverTheElite();
+			offspring = crossoverTheElite(elitePaths);
+
+			// prepare population for next generation
+			// NOTE: must just replace the non-elite elements in the population
+			// structure with the offspring. The offspring start at the
+			// NUM_ELITE'th idx and go to the end.
+			int offIdx = 0;
+			for (int idx = SimVars.NUM_ELITE; idx < SimVars.PATH_POPULATION_SIZE; idx++) {
+				population.set(idx, offspring.get(offIdx));
+
+				offIdx++;
+			}
 
 			currGeneration++;
 		}
 	}
 
 	/**
-	 * Find the indices of the elite paths in the population.
+	 * Perform a single point crossover from 2 random elite parents to create
+	 * the {@code SimVars.NUM_OFFSPRING} offspring to fill the rest of the
+	 * population.
 	 * 
-	 * @param fitnesses
-	 *            the {@code List<Integers>} that is the unsorted fitness values
-	 *            that correspond to the paths in the population.
+	 * @param elitePaths
+	 *            the {@code List} of elite paths that will be the parents.
 	 * 
-	 * @return the {@code List<Integer>} that contains the indices of the elite
-	 *         paths.
+	 * @return the {@code List} of paths that is the offspring of this
+	 *         generation.
 	 */
-	public static List<Integer> getEliteIdxsFromFitnesses(
-			List<Integer> fitnesses) {
-		List<Integer> elitePathIdxs = new ArrayList<Integer>();
+	private static List<Path> crossoverTheElite(List<Path> elitePaths) {
+		Random prng = new Random();
+		int parent1Idx, parent2Idx, crossoverPt;
+		Path parent1, parent2;
 
-		return elitePathIdxs;
+		List<Path> offspring = new ArrayList<Path>();
 
+		for (int offCtr = 0; offCtr < SimVars.NUM_OFFSPRING / 2; offCtr++) {
+			// pick 2 random parents to be the offspring
+			parent1Idx = prng.nextInt(SimVars.NUM_ELITE);
+			parent2Idx = prng.nextInt(SimVars.NUM_ELITE);
+			parent1 = elitePaths.get(parent1Idx);
+			parent2 = elitePaths.get(parent2Idx);
+
+			// pick a random crossover point
+			crossoverPt = prng.nextInt(SimVars.MAX_TURNS);
+
+			// create two offspring; must create deep copy of the parent's
+			// "genome". First half parent 1 with second half parent 2 and first
+			// half parent 2 with second half parent 1.
+			List<Turn> fHalf1SHalf2Turns = new ArrayList<Turn>();
+			List<Turn> fHalf2SHalf1Turns = new ArrayList<Turn>();
+
+			// FIRST HALVES
+			for (int fHalf = 0; fHalf < crossoverPt; fHalf++) {
+				List<Action> fHalf1SHalf2Actions = new ArrayList<Action>();
+				List<Action> fHalf2SHalf1Actions = new ArrayList<Action>();
+
+				for (int actionIdx = 0; actionIdx < SimVars.NUM_ACTIONS_PER_TURN; actionIdx++) {
+					Action par1CurrAction = parent1.getTurns().get(fHalf)
+							.getActions().get(actionIdx);
+					Action par2CurrAction = parent2.getTurns().get(fHalf)
+							.getActions().get(actionIdx);
+
+					if (par1CurrAction instanceof MoveAction)
+						fHalf1SHalf2Actions.add(new MoveAction(
+								((MoveAction) par1CurrAction).getMoveTo()));
+					else
+						// treat action
+						fHalf1SHalf2Actions.add(new TreatDiseaseAction());
+
+					if (par2CurrAction instanceof MoveAction)
+						fHalf2SHalf1Actions.add(new MoveAction(
+								((MoveAction) par2CurrAction).getMoveTo()));
+					else
+						// treat action
+						fHalf2SHalf1Actions.add(new TreatDiseaseAction());
+				}
+
+				fHalf1SHalf2Turns.add(new Turn(fHalf1SHalf2Actions));
+				fHalf2SHalf1Turns.add(new Turn(fHalf2SHalf1Actions));
+			}
+
+			// SECOND HALVES
+			for (int sHalf = crossoverPt; sHalf < SimVars.MAX_TURNS; sHalf++) {
+				List<Action> fHalf1SHalf2Actions = new ArrayList<Action>();
+				List<Action> fHalf2SHalf1Actions = new ArrayList<Action>();
+
+				for (int actionIdx = 0; actionIdx < SimVars.NUM_ACTIONS_PER_TURN; actionIdx++) {
+					Action par1CurrAction = parent1.getTurns().get(sHalf)
+							.getActions().get(actionIdx);
+					Action par2CurrAction = parent2.getTurns().get(sHalf)
+							.getActions().get(actionIdx);
+
+					if (par1CurrAction instanceof MoveAction)
+						fHalf1SHalf2Actions.add(new MoveAction(
+								((MoveAction) par1CurrAction).getMoveTo()));
+					else
+						// treat action
+						fHalf1SHalf2Actions.add(new TreatDiseaseAction());
+
+					if (par2CurrAction instanceof MoveAction)
+						fHalf2SHalf1Actions.add(new MoveAction(
+								((MoveAction) par2CurrAction).getMoveTo()));
+					else
+						// treat action
+						fHalf2SHalf1Actions.add(new TreatDiseaseAction());
+				}
+
+				fHalf1SHalf2Turns.add(new Turn(fHalf1SHalf2Actions));
+				fHalf2SHalf1Turns.add(new Turn(fHalf2SHalf1Actions));
+			}
+
+			// randomly mutate
+			int mutateIdx;
+			Turn mutateTurn1, mutateTurn2;
+			for (int i = 0; i < SimVars.NUM_MUTATIONS; i++) {
+				mutateIdx = prng.nextInt(SimVars.MAX_TURNS);
+				mutateTurn1 = fHalf1SHalf2Turns.get(mutateIdx);
+
+				mutateIdx = prng.nextInt(SimVars.MAX_TURNS);
+				mutateTurn2 = fHalf2SHalf1Turns.get(mutateIdx);
+
+				// randomly choose new set of actions
+				for (int actionIdx = 0; actionIdx < SimVars.NUM_ACTIONS_PER_TURN; actionIdx++) {
+
+					// CHILD 1
+					if (prng.nextInt(2) == 0)
+						// treat
+						mutateTurn1.getActions().set(actionIdx,
+								new TreatDiseaseAction());
+					else {
+						// select a random city to move to
+						CityEnum moveToCity = SimVars.CITY_ALPHA_ORDER_LIST
+								.get(prng.nextInt(SimVars.NUM_CITIES));
+						mutateTurn1.getActions().set(actionIdx,
+								new MoveAction(moveToCity));
+					}
+
+					// CHILD 2
+					if (prng.nextInt(2) == 0)
+						// treat
+						mutateTurn2.getActions().set(actionIdx,
+								new TreatDiseaseAction());
+					else {
+						// select a random city to move to
+						CityEnum moveToCity = SimVars.CITY_ALPHA_ORDER_LIST
+								.get(prng.nextInt(SimVars.NUM_CITIES));
+						mutateTurn2.getActions().set(actionIdx,
+								new MoveAction(moveToCity));
+					}
+				}
+			}
+
+			// add the children to the offspring list
+			offspring.add(new Path(fHalf1SHalf2Turns));
+			offspring.add(new Path(fHalf2SHalf1Turns));
+		}
+
+		return offspring;
 	}
 }

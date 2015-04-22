@@ -18,7 +18,7 @@ public class SimVars {
 	public static final int NUM_CITIES = 48;
 	public static final int MAX_INFECTION_OF_CITY = 3;
 	public static final int NUM_INITIALLY_INFECTED = 9;
-	public static final int NUM_ACTIONS_PER_TURN = 4;
+	public static final int NUM_ACTIONS_PER_TURN = 8;
 	public static final CityEnum START_CITY = CityEnum.ATLANTA; // CDC
 	// used as a lookup table
 	public static final List<CityEnum> CITY_ALPHA_ORDER_LIST = new ArrayList<CityEnum>(
@@ -43,5 +43,7 @@ public class SimVars {
 	// GA Vars
 	public static final int PATH_POPULATION_SIZE = 100;
 	public static final int NUM_ELITE = 20;
+	public static final int NUM_OFFSPRING = PATH_POPULATION_SIZE - NUM_ELITE;
 	public static final int NUM_GENERATIONS = 50;
+	public static final int NUM_MUTATIONS = 2;
 }
