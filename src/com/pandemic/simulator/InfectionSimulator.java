@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.TreeMap;
 
+import com.pandemic.DataCollection;
 import com.pandemic.cities.Algiers;
 import com.pandemic.cities.Atlanta;
 import com.pandemic.cities.Baghdad;
@@ -200,8 +201,9 @@ public class InfectionSimulator {
 
 		for (int i = 0; i < SimVars.NUM_INITIALLY_INFECTED; i++) {
 			// 0 - number of cities, inclusive, no dupes
-			currCityEnum = SimVars.CITY_ALPHA_ORDER_LIST.get(prng
-					.nextInt(SimVars.NUM_CITIES));
+			currCityEnum =
+					SimVars.CITY_ALPHA_ORDER_LIST.get(prng
+							.nextInt(SimVars.NUM_CITIES));
 
 			if (!initiallyInfectedCities.contains(currCityEnum))
 				initiallyInfectedCities.add(currCityEnum);
@@ -293,8 +295,9 @@ public class InfectionSimulator {
 			// the current turn multiplied by the infection rate will always
 			// give the index of the first city to infect at that turn, and add
 			// 1 to get the second.
-			currCityEnumToInfect = cityInfectionOrder
-					.get((currTurn * SimVars.INFECTION_RATE) + i);
+			currCityEnumToInfect =
+					cityInfectionOrder.get((currTurn * SimVars.INFECTION_RATE)
+							+ i);
 
 			increaseCityInfection(currCityEnumToInfect);
 
@@ -506,8 +509,8 @@ public class InfectionSimulator {
 	 */
 	private void printWorldMap(World mapToPrint) {
 		// use a tree map so it's sorted automatically
-		World sortedMap = new World(new TreeMap<CityEnum, City>(
-				mapToPrint.getWorldMap()));
+		World sortedMap =
+				new World(new TreeMap<CityEnum, City>(mapToPrint.getWorldMap()));
 
 		for (CityEnum cityEnum : sortedMap.getWorldMap().keySet())
 			System.out
@@ -543,6 +546,14 @@ public class InfectionSimulator {
 
 		InfectionSimulator simulator = new InfectionSimulator(prng);
 
+		// Figure 1
+		for (int gameNum = 0; gameNum < 10; gameNum++) {
+			resetSim(simulator, gameNum);
+			List<World> currPathResult = simulator.runSimulation(null);
+			DataCollection.saveDiseaseSpreadNoPlayer(currPathResult, gameNum);
+		}
+
+		resetSim(simulator, GAME_SEED);
 		runGA(simulator, GAME_SEED);
 	}
 
@@ -557,7 +568,7 @@ public class InfectionSimulator {
 	 *            deterministic value representing this game
 	 */
 	private static void runGA(InfectionSimulator simulator, int GAME_SEED) {
-		List<List<World>> allPathResults = new ArrayList<List<World>>();
+		List<Integer> bestFitnessPerGeneration = new ArrayList<Integer>();
 		List<Path> population = new ArrayList<Path>();
 		List<Path> elitePaths;
 		List<Path> offspring;
@@ -576,19 +587,16 @@ public class InfectionSimulator {
 			// run simulation on entire population of paths
 			for (Path path : population) {
 				// XXX debugging
-				//System.out.println("Start Path #: " + ctr);
+				// System.out.println("Start Path #: " + ctr);
 
 				currPathResult = simulator.runSimulation(path);
-				allPathResults.add(currPathResult);
 
 				// calculate fitness; that is the amount of infection in the
 				// world at the final snapshot
 				path.setFitness(GAUtility.calcTotalInfectionLevel(GAUtility
 						.getFinalWorldMapSnapshot(currPathResult)));
 
-				// reset the prng and re-init the simulator for a new path run
-				simulator.prng.setSeed(GAME_SEED);
-				simulator.initSimulation();
+				resetSim(simulator, GAME_SEED);
 
 				// XXX debugging
 				ctr++;
@@ -596,12 +604,12 @@ public class InfectionSimulator {
 
 			// sort based on fitness
 			Collections.sort(population);
+			bestFitnessPerGeneration.add(population.get(0).getFitness());
 
-			simulator.printWorldMap(simulator.runSimulation(population.get(0))
-					.get(SimVars.MAX_TURNS - 1));
-			// reset the prng and re-init the simulator for a new path run
-			simulator.prng.setSeed(GAME_SEED);
-			simulator.initSimulation();
+			// XXX DEBUGGING PRINT STATEMENT
+			// simulator.printWorldMap(simulator.runSimulation(population.get(0))
+			// .get(SimVars.MAX_TURNS - 1));
+			// resetSim(simulator, GAME_SEED);
 
 			// get the elite paths
 			elitePaths = new ArrayList<Path>();
@@ -624,6 +632,14 @@ public class InfectionSimulator {
 
 			currGeneration++;
 		}
+
+		// Figure 2
+		DataCollection.saveBestFitnessPerGeneration(bestFitnessPerGeneration);
+
+		// Figure 3
+		DataCollection.saveAvgInfectionLevelPerCity(
+				simulator.runSimulation(population.get(0)), "BEST");
+		resetSim(simulator, GAME_SEED);
 	}
 
 	/**
@@ -666,10 +682,12 @@ public class InfectionSimulator {
 				List<Action> fHalf2SHalf1Actions = new ArrayList<Action>();
 
 				for (int actionIdx = 0; actionIdx < SimVars.NUM_ACTIONS_PER_TURN; actionIdx++) {
-					Action par1CurrAction = parent1.getTurns().get(fHalf)
-							.getActions().get(actionIdx);
-					Action par2CurrAction = parent2.getTurns().get(fHalf)
-							.getActions().get(actionIdx);
+					Action par1CurrAction =
+							parent1.getTurns().get(fHalf).getActions()
+									.get(actionIdx);
+					Action par2CurrAction =
+							parent2.getTurns().get(fHalf).getActions()
+									.get(actionIdx);
 
 					if (par1CurrAction instanceof MoveAction)
 						fHalf1SHalf2Actions.add(new MoveAction(
@@ -696,10 +714,12 @@ public class InfectionSimulator {
 				List<Action> fHalf2SHalf1Actions = new ArrayList<Action>();
 
 				for (int actionIdx = 0; actionIdx < SimVars.NUM_ACTIONS_PER_TURN; actionIdx++) {
-					Action par1CurrAction = parent1.getTurns().get(sHalf)
-							.getActions().get(actionIdx);
-					Action par2CurrAction = parent2.getTurns().get(sHalf)
-							.getActions().get(actionIdx);
+					Action par1CurrAction =
+							parent1.getTurns().get(sHalf).getActions()
+									.get(actionIdx);
+					Action par2CurrAction =
+							parent2.getTurns().get(sHalf).getActions()
+									.get(actionIdx);
 
 					if (par1CurrAction instanceof MoveAction)
 						fHalf1SHalf2Actions.add(new MoveAction(
@@ -740,8 +760,9 @@ public class InfectionSimulator {
 								new TreatDiseaseAction());
 					else {
 						// select a random city to move to
-						CityEnum moveToCity = SimVars.CITY_ALPHA_ORDER_LIST
-								.get(prng.nextInt(SimVars.NUM_CITIES));
+						CityEnum moveToCity =
+								SimVars.CITY_ALPHA_ORDER_LIST.get(prng
+										.nextInt(SimVars.NUM_CITIES));
 						mutateTurn1.getActions().set(actionIdx,
 								new MoveAction(moveToCity));
 					}
@@ -753,8 +774,9 @@ public class InfectionSimulator {
 								new TreatDiseaseAction());
 					else {
 						// select a random city to move to
-						CityEnum moveToCity = SimVars.CITY_ALPHA_ORDER_LIST
-								.get(prng.nextInt(SimVars.NUM_CITIES));
+						CityEnum moveToCity =
+								SimVars.CITY_ALPHA_ORDER_LIST.get(prng
+										.nextInt(SimVars.NUM_CITIES));
 						mutateTurn2.getActions().set(actionIdx,
 								new MoveAction(moveToCity));
 					}
@@ -767,5 +789,18 @@ public class InfectionSimulator {
 		}
 
 		return offspring;
+	}
+
+	/**
+	 * Reset the prng and re-init the simulator for a new path run
+	 * 
+	 * @param simulator
+	 *            the {@link InfectionSimulator} to reset.
+	 * @param GAME_SEED
+	 *            the {@code int} set to reset the prng with.
+	 */
+	private static void resetSim(InfectionSimulator simulator, int GAME_SEED) {
+		simulator.prng.setSeed(GAME_SEED);
+		simulator.initSimulation();
 	}
 }
