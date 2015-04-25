@@ -21,24 +21,24 @@ public class SimVars {
 	public static final int NUM_ACTIONS_PER_TURN = 8;
 	public static final CityEnum START_CITY = CityEnum.ATLANTA; // CDC
 	// used as a lookup table
-	public static final List<CityEnum> CITY_ALPHA_ORDER_LIST = new ArrayList<CityEnum>(
-			Arrays.asList(CityEnum.ALGIERS, CityEnum.ATLANTA, CityEnum.BAGHDAD,
-					CityEnum.BANGKOK, CityEnum.BEIJING, CityEnum.BOGOTA,
-					CityEnum.BUENOS_AIRES, CityEnum.CAIRO, CityEnum.CHENNAI,
-					CityEnum.CHICAGO, CityEnum.DELHI, CityEnum.ESSEN,
-					CityEnum.HO_CHI_MINH_CITY, CityEnum.HONG_KONG,
-					CityEnum.ISTANBUL, CityEnum.JAKARTA, CityEnum.JOHANNESBURG,
-					CityEnum.KARACHI, CityEnum.KHARTOUM, CityEnum.KINSHASA,
-					CityEnum.KOLKATA, CityEnum.LAGOS, CityEnum.LIMA,
-					CityEnum.LONDON, CityEnum.LOS_ANGELES, CityEnum.MADRID,
-					CityEnum.MANILA, CityEnum.MEXICO_CITY, CityEnum.MIAMI,
-					CityEnum.MILAN, CityEnum.MONTREAL, CityEnum.MOSCOW,
-					CityEnum.MUMBAI, CityEnum.NEW_YORK, CityEnum.OSAKA,
-					CityEnum.PARIS, CityEnum.RIYADH, CityEnum.SAN_FRANSISCO,
-					CityEnum.SANTIAGO, CityEnum.SAO_PAULO, CityEnum.SEOUL,
-					CityEnum.SHANGHAI, CityEnum.ST_PETERSBURG, CityEnum.SYDNEY,
-					CityEnum.TAIPEI, CityEnum.TEHRAN, CityEnum.TOKYO,
-					CityEnum.WASHINGTON));
+	public static final List<CityEnum> CITY_ALPHA_ORDER_LIST =
+			new ArrayList<CityEnum>(Arrays.asList(CityEnum.ALGIERS,
+					CityEnum.ATLANTA, CityEnum.BAGHDAD, CityEnum.BANGKOK,
+					CityEnum.BEIJING, CityEnum.BOGOTA, CityEnum.BUENOS_AIRES,
+					CityEnum.CAIRO, CityEnum.CHENNAI, CityEnum.CHICAGO,
+					CityEnum.DELHI, CityEnum.ESSEN, CityEnum.HO_CHI_MINH_CITY,
+					CityEnum.HONG_KONG, CityEnum.ISTANBUL, CityEnum.JAKARTA,
+					CityEnum.JOHANNESBURG, CityEnum.KARACHI, CityEnum.KHARTOUM,
+					CityEnum.KINSHASA, CityEnum.KOLKATA, CityEnum.LAGOS,
+					CityEnum.LIMA, CityEnum.LONDON, CityEnum.LOS_ANGELES,
+					CityEnum.MADRID, CityEnum.MANILA, CityEnum.MEXICO_CITY,
+					CityEnum.MIAMI, CityEnum.MILAN, CityEnum.MONTREAL,
+					CityEnum.MOSCOW, CityEnum.MUMBAI, CityEnum.NEW_YORK,
+					CityEnum.OSAKA, CityEnum.PARIS, CityEnum.RIYADH,
+					CityEnum.SAN_FRANSISCO, CityEnum.SANTIAGO,
+					CityEnum.SAO_PAULO, CityEnum.SEOUL, CityEnum.SHANGHAI,
+					CityEnum.ST_PETERSBURG, CityEnum.SYDNEY, CityEnum.TAIPEI,
+					CityEnum.TEHRAN, CityEnum.TOKYO, CityEnum.WASHINGTON));
 
 	// GA Vars
 	public static final int PATH_POPULATION_SIZE = 100;
@@ -46,4 +46,6 @@ public class SimVars {
 	public static final int NUM_OFFSPRING = PATH_POPULATION_SIZE - NUM_ELITE;
 	public static final int NUM_GENERATIONS = 50;
 	public static final int NUM_MUTATIONS = 2;
+
+	public static final int WORST_SEED = "Worst".hashCode();
 }

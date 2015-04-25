@@ -98,11 +98,14 @@ public class DataCollection {
 	 *            world at each turn
 	 * @param path
 	 *            the {@link Path} that has the actions for every turn
+	 * @param infectionOrder
+	 *            the {@code List<CityEnum>} that will be the order of infection
+	 *            of the cities for this game.
 	 * @param fileName
 	 *            the {@code String} name of the file to print to.
 	 */
 	public static void saveWorldAtEachTurn(List<World> worldMaps, Path path,
-			String fileName) {
+			List<CityEnum> cityInfectionOrder, String fileName) {
 
 		FileWriter writer;
 		try {
@@ -116,23 +119,40 @@ public class DataCollection {
 			for (World mapToPrint : worldMaps) {
 				bWriter.write("========");
 				bWriter.newLine();
-				bWriter.write("Turn #" + (turnCtr + 1));
+				if (turnCtr == SimVars.MAX_TURNS)
+					bWriter.write("Final State");
+				else
+					bWriter.write("Turn #" + (turnCtr + 1));
 				bWriter.newLine();
 				bWriter.write("========");
 				bWriter.newLine();
 
-				if (path != null) {
-					currTurn = path.getTurns().get(turnCtr);
-					// print the actions of this turn, first
-					for (Action action : currTurn.getActions()) {
-						if (action instanceof MoveAction) {
-							bWriter.write("Move to: "
-									+ ((MoveAction) action).getMoveTo());
-							bWriter.newLine();
-						} else {
-							bWriter.write("Treat");
-							bWriter.newLine();
+				if (turnCtr < SimVars.MAX_TURNS) {
+					if (path != null) {
+						currTurn = path.getTurns().get(turnCtr);
+						// print the actions of this turn, first
+						for (Action action : currTurn.getActions()) {
+							if (action instanceof MoveAction) {
+								bWriter.write("Move to: "
+										+ ((MoveAction) action).getMoveTo());
+								bWriter.newLine();
+							} else {
+								bWriter.write("Treat");
+								bWriter.newLine();
+							}
 						}
+						bWriter.write("--------");
+						bWriter.newLine();
+					}
+
+					// print the cities that are going to be infected after the
+					// action
+					for (int i = 0; i < SimVars.INFECTION_RATE; i++) {
+						bWriter.write("Infect: "
+								+ cityInfectionOrder
+										.get((turnCtr * SimVars.INFECTION_RATE)
+												+ i));
+						bWriter.newLine();
 					}
 					bWriter.write("--------");
 					bWriter.newLine();
@@ -166,6 +186,68 @@ public class DataCollection {
 				turnCtr++;
 			}
 
+			bWriter.close();
+		} catch (IOException e) {
+			System.out.println("Error writing " + fileName + " to disk.");
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Figure 5: Save the percentage of actions that are "Treat" compared to
+	 * "Move" actions over the {@link Path}.
+	 * 
+	 * @param path
+	 *            the {@link Path} to pull the {@link Action}s from.
+	 * @param fileName
+	 *            the {@code String} file path of the .txt file to save.
+	 */
+	public static void saveActionDistributionPerTurn(Path path, String fileName) {
+		FileWriter writer;
+		try {
+			writer = new FileWriter(fileName);
+			BufferedWriter bWriter = new BufferedWriter(writer);
+			bWriter.write("#Treat,#Move");
+			bWriter.newLine();
+
+			int numTreat = 0;
+			int numMove = 0;
+			int numTreatTotal = 0;
+			int numMoveTotal = 0;
+
+			for (Turn turn : path.getTurns()) {
+				numTreat = 0;
+				numMove = 0;
+
+				for (Action action : turn.getActions())
+					if (action instanceof MoveAction)
+						numMove++;
+					else
+						numTreat++;
+
+				bWriter.write(numTreat + "," + numMove);
+				bWriter.newLine();
+
+				numTreatTotal += numTreat;
+				numMoveTotal += numMove;
+			}
+
+			bWriter.write("========");
+			bWriter.newLine();
+			bWriter.write("Total Treat: "
+					+ numTreatTotal
+					+ " ("
+					+ (double) numTreatTotal
+					/ (double) (SimVars.NUM_ACTIONS_PER_TURN * SimVars.MAX_TURNS)
+					+ "%)");
+			bWriter.newLine();
+			bWriter.write("Total Move: "
+					+ numMoveTotal
+					+ " ("
+					+ (double) numMoveTotal
+					/ (double) (SimVars.NUM_ACTIONS_PER_TURN * SimVars.MAX_TURNS)
+					+ "%)");
+			bWriter.newLine();
 			bWriter.close();
 		} catch (IOException e) {
 			System.out.println("Error writing " + fileName + " to disk.");

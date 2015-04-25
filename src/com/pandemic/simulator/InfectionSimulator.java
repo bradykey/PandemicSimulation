@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
-import java.util.TreeMap;
 
 import com.pandemic.DataCollection;
 import com.pandemic.cities.Algiers;
@@ -231,6 +230,8 @@ public class InfectionSimulator {
 
 		// System.out.println("INITIAL CONFIGURATION:\n");
 		// printWorldMap(world);
+		// add the initial configuration first
+		worldSnapshots.add(snapshotTheWorld());
 
 		while (currTurn < SimVars.MAX_TURNS) {
 			// System.out.println("\nTurn #" + currTurn + "\n");
@@ -535,6 +536,7 @@ public class InfectionSimulator {
 				.saveWorldAtEachTurn(
 						simulator.runSimulation(null),
 						null,
+						simulator.cityInfectionOrder,
 						"D:\\Programming\\Eclipse Workspace\\PandemicSimulation\\DataCollection\\Fig4GIFS\\NoPlayer\\worldStatePerTurn.txt");
 
 		resetSim(simulator, GAME_SEED);
@@ -560,7 +562,6 @@ public class InfectionSimulator {
 		for (int pathNum = 0; pathNum < SimVars.PATH_POPULATION_SIZE; pathNum++)
 			population.add(GAUtility.generateRandomPath());
 
-		int ctr = 1;
 		int currGeneration = 0;
 		List<World> currPathResult;
 
@@ -570,9 +571,6 @@ public class InfectionSimulator {
 
 			// run simulation on entire population of paths
 			for (Path path : population) {
-				// XXX debugging
-				// System.out.println("Start Path #: " + ctr);
-
 				currPathResult = simulator.runSimulation(path);
 
 				// calculate fitness; that is the amount of infection in the
@@ -581,19 +579,11 @@ public class InfectionSimulator {
 						.getFinalWorldMapSnapshot(currPathResult)));
 
 				resetSim(simulator, GAME_SEED);
-
-				// XXX debugging
-				ctr++;
 			}
 
 			// sort based on fitness
 			Collections.sort(population);
 			bestFitnessPerGeneration.add(population.get(0).getFitness());
-
-			// XXX DEBUGGING PRINT STATEMENT
-			// simulator.printWorldMap(simulator.runSimulation(population.get(0))
-			// .get(SimVars.MAX_TURNS - 1));
-			// resetSim(simulator, GAME_SEED);
 
 			// get the elite paths
 			elitePaths = new ArrayList<Path>();
@@ -625,8 +615,8 @@ public class InfectionSimulator {
 				simulator.runSimulation(population.get(0)), "BEST");
 		resetSim(simulator, GAME_SEED);
 		DataCollection.saveAvgInfectionLevelPerCity(
-				simulator.runSimulation(GAUtility.generateRandomPath("Worst"
-						.hashCode())), "Random");
+				simulator.runSimulation(GAUtility
+						.generateRandomPath(SimVars.WORST_SEED)), "Random");
 		resetSim(simulator, GAME_SEED);
 
 		// Figure 4/GIFS.2 - BEST
@@ -634,15 +624,30 @@ public class InfectionSimulator {
 				.saveWorldAtEachTurn(
 						simulator.runSimulation(population.get(0)),
 						population.get(0),
+						simulator.cityInfectionOrder,
 						"D:\\Programming\\Eclipse Workspace\\PandemicSimulation\\DataCollection\\Fig4GIFS\\Best\\worldStatePerTurn.txt");
 		resetSim(simulator, GAME_SEED);
 		// WORST/RANDOM
-		Path randomPath = GAUtility.generateRandomPath("Worst".hashCode());
+		Path randomPath = GAUtility.generateRandomPath(SimVars.WORST_SEED);
 		DataCollection
 				.saveWorldAtEachTurn(
 						simulator.runSimulation(randomPath),
 						randomPath,
+						simulator.cityInfectionOrder,
 						"D:\\Programming\\Eclipse Workspace\\PandemicSimulation\\DataCollection\\Fig4GIFS\\Random\\worldStatePerTurn.txt");
+		resetSim(simulator, GAME_SEED);
+
+		// Figure 5 - BEST
+		DataCollection
+				.saveActionDistributionPerTurn(
+						population.get(0),
+						"D:\\Programming\\Eclipse Workspace\\PandemicSimulation\\DataCollection\\Fig5\\actionDistributionPerTurnBEST.txt");
+		resetSim(simulator, GAME_SEED);
+		// Worst/Random
+		DataCollection
+				.saveActionDistributionPerTurn(
+						randomPath,
+						"D:\\Programming\\Eclipse Workspace\\PandemicSimulation\\DataCollection\\Fig5\\actionDistributionPerTurnRANDOM.txt");
 		resetSim(simulator, GAME_SEED);
 	}
 
