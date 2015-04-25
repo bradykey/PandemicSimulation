@@ -503,32 +503,6 @@ public class InfectionSimulator {
 	}
 
 	/**
-	 * Print the infection level of each city at this snapshot in time.
-	 * 
-	 * @param mapToPrint
-	 */
-	private void printWorldMap(World mapToPrint) {
-		// use a tree map so it's sorted automatically
-		World sortedMap =
-				new World(new TreeMap<CityEnum, City>(mapToPrint.getWorldMap()));
-
-		for (CityEnum cityEnum : sortedMap.getWorldMap().keySet())
-			System.out
-					.println(cityEnum.toString()
-							+ ": "
-							+ sortedMap.getWorldMap().get(cityEnum)
-									.getInfectionLevel());
-
-		// print total infection and as a percentage
-		int totalInfection = GAUtility.calcTotalInfectionLevel(mapToPrint);
-
-		System.out.println("Total Infection Level: " + totalInfection + " ("
-				+ (double) totalInfection
-				/ (double) (SimVars.NUM_CITIES * SimVars.MAX_INFECTION_OF_CITY)
-				* 100 + "%)");
-	}
-
-	/**
 	 * The main entry point to run the {@link InfectionSimulator}.
 	 * 
 	 * @param args
@@ -546,12 +520,22 @@ public class InfectionSimulator {
 
 		InfectionSimulator simulator = new InfectionSimulator(prng);
 
-		// Figure 1
+		// Figure 1 & 4/GIFS
 		for (int gameNum = 0; gameNum < 10; gameNum++) {
 			resetSim(simulator, gameNum);
 			List<World> currPathResult = simulator.runSimulation(null);
+
 			DataCollection.saveDiseaseSpreadNoPlayer(currPathResult, gameNum);
 		}
+
+		resetSim(simulator, GAME_SEED);
+		// Figure 4/GIFS.1 - NoPlayer spread
+		// only do this figure once
+		DataCollection
+				.saveWorldAtEachTurn(
+						simulator.runSimulation(null),
+						null,
+						"D:\\Programming\\Eclipse Workspace\\PandemicSimulation\\DataCollection\\Fig4GIFS\\NoPlayer\\worldStatePerTurn.txt");
 
 		resetSim(simulator, GAME_SEED);
 		runGA(simulator, GAME_SEED);
@@ -639,6 +623,26 @@ public class InfectionSimulator {
 		// Figure 3
 		DataCollection.saveAvgInfectionLevelPerCity(
 				simulator.runSimulation(population.get(0)), "BEST");
+		resetSim(simulator, GAME_SEED);
+		DataCollection.saveAvgInfectionLevelPerCity(
+				simulator.runSimulation(GAUtility.generateRandomPath("Worst"
+						.hashCode())), "Random");
+		resetSim(simulator, GAME_SEED);
+
+		// Figure 4/GIFS.2 - BEST
+		DataCollection
+				.saveWorldAtEachTurn(
+						simulator.runSimulation(population.get(0)),
+						population.get(0),
+						"D:\\Programming\\Eclipse Workspace\\PandemicSimulation\\DataCollection\\Fig4GIFS\\Best\\worldStatePerTurn.txt");
+		resetSim(simulator, GAME_SEED);
+		// WORST/RANDOM
+		Path randomPath = GAUtility.generateRandomPath("Worst".hashCode());
+		DataCollection
+				.saveWorldAtEachTurn(
+						simulator.runSimulation(randomPath),
+						randomPath,
+						"D:\\Programming\\Eclipse Workspace\\PandemicSimulation\\DataCollection\\Fig4GIFS\\Random\\worldStatePerTurn.txt");
 		resetSim(simulator, GAME_SEED);
 	}
 

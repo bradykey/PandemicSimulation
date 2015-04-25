@@ -18,7 +18,7 @@ public class SimVars {
 	public static final int NUM_CITIES = 48;
 	public static final int MAX_INFECTION_OF_CITY = 3;
 	public static final int NUM_INITIALLY_INFECTED = 9;
-	public static final int NUM_ACTIONS_PER_TURN = 4;
+	public static final int NUM_ACTIONS_PER_TURN = 8;
 	public static final CityEnum START_CITY = CityEnum.ATLANTA; // CDC
 	// used as a lookup table
 	public static final List<CityEnum> CITY_ALPHA_ORDER_LIST = new ArrayList<CityEnum>(

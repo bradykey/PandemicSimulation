@@ -4,13 +4,17 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
+import java.util.TreeMap;
 
+import com.pandemic.cities.City;
 import com.pandemic.cities.CityEnum;
 import com.pandemic.simulator.Path;
 import com.pandemic.simulator.SimVars;
 import com.pandemic.simulator.Turn;
 import com.pandemic.simulator.World;
 import com.pandemic.simulator.GA.GAUtility;
+import com.pandemic.simulator.actions.Action;
+import com.pandemic.simulator.actions.MoveAction;
 
 /**
  * This class contains functions that collect data from the simulation.
@@ -76,6 +80,90 @@ public class DataCollection {
 			for (Integer fitness : bestFitnessPerGeneration) {
 				bWriter.write("" + fitness + "");
 				bWriter.newLine();
+			}
+
+			bWriter.close();
+		} catch (IOException e) {
+			System.out.println("Error writing " + fileName + " to disk.");
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Fig 4/GIFS: Save the state of the world at each turn and the actions the
+	 * player will be taking at that turn.
+	 * 
+	 * @param worldMaps
+	 *            the {@code List<World>} that is the list of snapshots of the
+	 *            world at each turn
+	 * @param path
+	 *            the {@link Path} that has the actions for every turn
+	 * @param fileName
+	 *            the {@code String} name of the file to print to.
+	 */
+	public static void saveWorldAtEachTurn(List<World> worldMaps, Path path,
+			String fileName) {
+
+		FileWriter writer;
+		try {
+			writer = new FileWriter(fileName);
+			BufferedWriter bWriter = new BufferedWriter(writer);
+
+			int turnCtr = 0;
+			Turn currTurn;
+
+			// print the state of the world
+			for (World mapToPrint : worldMaps) {
+				bWriter.write("========");
+				bWriter.newLine();
+				bWriter.write("Turn #" + (turnCtr + 1));
+				bWriter.newLine();
+				bWriter.write("========");
+				bWriter.newLine();
+
+				if (path != null) {
+					currTurn = path.getTurns().get(turnCtr);
+					// print the actions of this turn, first
+					for (Action action : currTurn.getActions()) {
+						if (action instanceof MoveAction) {
+							bWriter.write("Move to: "
+									+ ((MoveAction) action).getMoveTo());
+							bWriter.newLine();
+						} else {
+							bWriter.write("Treat");
+							bWriter.newLine();
+						}
+					}
+					bWriter.write("--------");
+					bWriter.newLine();
+				}
+
+				// use a tree map so it's sorted automatically
+				World sortedMap =
+						new World(new TreeMap<CityEnum, City>(
+								mapToPrint.getWorldMap()));
+
+				for (CityEnum cityEnum : sortedMap.getWorldMap().keySet()) {
+					bWriter.write(cityEnum.toString()
+							+ ": "
+							+ sortedMap.getWorldMap().get(cityEnum)
+									.getInfectionLevel());
+					bWriter.newLine();
+				}
+
+				// print total infection and as a percentage
+				int totalInfection =
+						GAUtility.calcTotalInfectionLevel(mapToPrint);
+
+				bWriter.write("Total Infection Level: "
+						+ totalInfection
+						+ " ("
+						+ (double) totalInfection
+						/ (double) (SimVars.NUM_CITIES * SimVars.MAX_INFECTION_OF_CITY)
+						* 100 + "%)");
+				bWriter.newLine();
+
+				turnCtr++;
 			}
 
 			bWriter.close();
