@@ -1,10 +1,11 @@
 README.txt
 
-=======================
-UNM CS523 - HOMEWORK #3
-  INDEPENDENT PROJECT
-        4/27/15
-=======================
+==============================
+   UNM CS523 - HOMEWORK #3
+  	 INDEPENDENT PROJECT
+           4/27/15
+cellularpandemic.wordpress.com
+==============================
 Brady Key - bradykey@gmail.com (UNMID: bradykey)
 Elan Silverblatt-Buser - esilverblatt@gmail.com (UNMID: esilverblatt)
 
@@ -18,16 +19,21 @@ rule book, which is owned by Z-Man Games.
 Data were saved to .txt files and loaded into Plotly (www.plot.ly)
 to create the figures used for the website and the presentation.
 
+A flow chart was created using Gliffy.com.
+
 Wordpress.org and its free themes were used for the website. Also, their
 free hosting services were used to host the website.
 
 ***************************************************************************
-This turn-in contains 3 main things:
+This turn-in contains 5 main things:
 1: README.txt - this file.
 2: CellularPandemic.jar - the entire code for the assignment in an 
 executable .jar format.
 3: /Figures - a folder containing all of the Figures (and movie) described
 below.
+4. CellularPandemicKey-SilverblattPresentation.pdf - the slideshow of our 
+presentation.
+5. Website.txt - Cellular Pandemic website URL: cellularpandemic.wordpress.com
 
 All code, both .class and .java files, is packaged into the 
 CellularPandemic.jar. There is a single main(String[]) to be run from the
