@@ -27,25 +27,25 @@ free hosting services were used to host the website.
 ***************************************************************************
 This turn-in contains 5 main things:
 1: README.txt - this file.
-2: CellularPandemic.jar - the entire code for the assignment in an 
+2: GENeticPANdemic.jar - the entire code for the assignment in an 
 executable .jar format.
 3: /Figures - a folder containing all of the Figures (and movie) described
 below.
-4. CellularPandemicKey-SilverblattPresentation.pdf - the slideshow of our 
+4. GENeticPANdemicKey-SilverblattPresentation.pdf - the slideshow of our 
 presentation.
-5. Website.txt - Cellular Pandemic website URL: cellularpandemic.wordpress.com
+5. Website.txt - GENetic PANdemic website URL: geneticpandemic.wordpress.com
 
 All code, both .class and .java files, is packaged into the 
-CellularPandemic.jar. There is a single main(String[]) to be run from the
+GENeticPANdemic.jar. There is a single main(String[]) to be run from the
 InfectionSimulator.java class. 
 
 To run the simulator, you have two options: 
-The turned in CellularPandemic.jar is a fully executable .jar. Meaning, 
+The turned in GENeticPANdemic.jar is a fully executable .jar. Meaning, 
 you can run it from whichever path it lives by either double-clicking
 the .jar if you are in Windows or running the following command from
 the command line in linux -- 
 
->> java -jar CellularPandemic.jar
+>> java -jar GENeticPANdemic.jar
 
 If the simulator is run this way, you will see 18 .txt files be created
 in the directory in which the executable .jar was run. These files contain
@@ -111,7 +111,7 @@ on the "src" package and select "Import..."
 
 4) Under "General", select "Archive File".
 
-5) Select the CellularPandemic.jar in the "From archive file:" input box.
+5) Select the GENeticPANdemic.jar in the "From archive file:" input box.
 
 6) Make sure the top-level folder is selected (this is done by default)
 and press "Finish".
@@ -128,7 +128,7 @@ However, these files will exist in the top-level of the created Java Project.
 JAR File Contents
 =================
 
-The CellularPandemic.jar contains 2 main sub-packages under com.pandemic and
+The GENeticPANdemic.jar contains 2 main sub-packages under com.pandemic and
 a single DataCollection.java class that handles the output of the data found
 by the simulation.
 
